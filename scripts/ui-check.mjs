@@ -15,7 +15,7 @@ for(const viewport of [{width:1440,height:980},{width:390,height:844}]){
  await page.click('#themeButton');assert.equal(await page.locator('html').getAttribute('data-theme'),'light');checks++;
  await page.reload();assert.equal(await page.locator('html').getAttribute('data-theme'),'light');checks++;
  await page.fill('#sourceUrl',c.input);await page.click('#scanButton');await page.waitForFunction(()=>document.querySelector('#statVideos').textContent==='27');await page.waitForFunction(()=>!document.querySelector('#scanButton').disabled);assert.equal(await page.locator('.video-card').count(),24);checks++;
- assert.equal(await page.locator('.card-title').first().textContent(),'Most viewed lecture');checks++;
+ assert.equal(await page.locator('.card-title').first().textContent(),'Most viewed lecture');checks++;assert.ok(await page.locator('.video-card .download-action').count()>=1);checks++;
  assert.ok((await page.locator('#statCoverage').textContent()).includes('27'));checks++;
  await page.click('#nextResults');assert.equal(await page.locator('.video-card').count(),3);checks++;await page.click('#prevResults');
  await page.fill('#query','Original lecture');assert.equal(await page.locator('.video-card').count(),1);checks++;
