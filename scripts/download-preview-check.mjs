@@ -24,10 +24,12 @@ await page.locator('#sourceUrl').fill('https://www.tokyomotion.net/user/yua_xx/v
 await page.locator('#scanDepth').selectOption('5');
 await page.locator('#sourceForm').evaluate(f=>f.requestSubmit());
 await page.waitForFunction(()=>document.querySelectorAll('.video-card').length>0,{timeout:120000});
+await page.waitForFunction(()=>!document.querySelector('#scanButton').disabled,{timeout:180000});
+await page.waitForFunction(()=>document.querySelectorAll('.video-card .download-action').length>0,{timeout:30000});
 const downloadCount=await page.locator('.video-card .download-action').count();
 console.log('DOWNLOAD_UI',JSON.stringify({downloadButtons:downloadCount,cards:await page.locator('.video-card').count()}));
 assert.ok(downloadCount>=1,'Download button should be visible on at least one real video card');
-await page.locator('.video-card .download-action').first().click({modifiers:['Alt']}).catch(()=>{});
+const first=page.locator('.video-card .download-action').first();const href=await first.getAttribute('href'),downloadAttr=await first.getAttribute('download');console.log('DOWNLOAD_LINK',JSON.stringify({href,downloadAttr}));assert.ok(/^https?:\/\//.test(href||''));assert.ok(downloadAttr!==null);
 await browser.close();
 await req('/api/collections/'+job.collection_id,{method:'DELETE'}).catch(()=>{});
 console.log('DOWNLOAD_PREVIEW_VERIFIED');
