@@ -1,0 +1,30 @@
+name: Verify hosted complete search
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths: ['lib/**', 'static/**', 'netlify/**', 'scripts/search-hosted-check.mjs', '.github/workflows/search-hosted-check.yml']
+permissions:
+  contents: read
+concurrency:
+  group: hosted-search-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  search:
+    if: github.event_name == 'push' || github.head_ref == 'fix/search-complete-v37'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SITE_URL: ${{ github.event_name == 'pull_request' && format('https://deploy-preview-{0}--videoscope-3-tahmid.netlify.app', github.event.number) || 'https://videoscope-3-tahmid.netlify.app' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Saved-progress recovery and complete real search
+        run: node scripts/search-hosted-check.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: hosted-search-evidence, path: artifacts-search/, retention-days: 7}

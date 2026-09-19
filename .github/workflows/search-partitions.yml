@@ -1,0 +1,31 @@
+name: Inspect public search partitions
+on:
+  push:
+    branches: [fix/search-complete-v37]
+    paths: [.github/workflows/search-partitions.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - run: |
+          node --input-type=module <<'NODE'
+          import {load} from 'cheerio';
+          import {readPublic,readRobots,allowedByRobots} from './lib/network.mjs';
+          import {parseListing} from './lib/extract.mjs';
+          const base='https://www.tokyomotion.net/search?search_query=%E3%82%A8%E3%82%B9%E3%83%86&search_type=videos';
+          const rules=await readRobots(base),f=await readPublic(base),$=load(f.html),urls=new Map();
+          $('a[href]').each((_,n)=>{try{const u=new URL($(n).attr('href'),base);if(u.origin!==new URL(base).origin||u.pathname!='/search'||u.searchParams.get('search_query')!==new URL(base).searchParams.get('search_query')||u.searchParams.get('search_type')!=='videos')return;if(u.searchParams.has('page'))return;urls.set(u.href,$(n).text().trim().slice(0,60))}catch{}});
+          console.log('PUBLISHED_OPTIONS',JSON.stringify([...urls].map(([url,label])=>({url,label}))));
+          for(const [url,label] of [...urls].filter(([url])=>new URL(url).searchParams.has('type')||new URL(url).searchParams.has('o')).slice(0,12)){
+            if(!allowedByRobots(rules,url))continue;
+            try{const f=await readPublic(url),p=parseListing(f.html,f.url);console.log('OPTION',JSON.stringify({label,url,expected:p.expected,records:p.items.length,next:p.next,privateListings:p.items.filter(x=>x.availability==='private listing').length}));}catch(e){console.log('OPTION_ERROR',label,e.message)}
+            await new Promise(r=>setTimeout(r,1200));
+          }
+          NODE

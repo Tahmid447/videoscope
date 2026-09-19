@@ -1,0 +1,39 @@
+name: Inspect search boundary
+on:
+  push:
+    branches: [fix/search-complete-v37]
+    paths: [.github/workflows/search-boundary.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - run: |
+          node --input-type=module <<'NODE'
+          import * as cheerio from 'cheerio';
+          import {readPublic,readRobots,allowedByRobots} from './lib/network.mjs';
+          const base='https://www.tokyomotion.net/search?search_query=%E3%82%A8%E3%82%B9%E3%83%86&search_type=videos';
+          const rules=await readRobots(base);
+          for(const page of [1,17,18,19,25,48,49,58]){
+            const u=new URL(base);u.searchParams.set('page',String(page));
+            if(!allowedByRobots(rules,u.href))throw new Error('Source crawl instructions disallow this read');
+            try{
+              const x=await readPublic(u.href),$=cheerio.load(x.html);
+              const body=$('body').text().replace(/\s+/g,' ').trim();
+              const cards=$('.well').filter((_,n)=>$(n).find('.video-title,.thumb-overlay').length);
+              const links=$('a[href]').filter((_,n)=>{try{return /^\/video\/\d+(?:\/|$)/.test(new URL($(n).attr('href'),x.url).pathname)}catch{return false}});
+              const ids=[...new Set(links.map((_,n)=>new URL($(n).attr('href'),x.url).pathname.match(/^\/video\/(\d+)/)[1]).get())];
+              const headings=$('h1,h2').map((_,n)=>$(n).text().trim().slice(0,80)).get();
+              const alerts=$('.alert,#error,.error,.message').map((_,n)=>$(n).text().trim().slice(0,250)).get();
+              console.log('BOUNDARY',JSON.stringify({page,status:x.status,bytes:x.html.length,count:body.match(/Showing.{0,130}?videos/i)?.[0],ids:ids.length,first:ids[0],last:ids.at(-1),cards:cards.length,unlinked:cards.filter((_,n)=>!$(n).find('a[href*="/video/"]').length).length,headings,alerts,pagination:$('.pagination').first().text().replace(/\s+/g,' ').slice(0,220),title:$('title').text().slice(0,100)}));
+              if(!ids.length){$('script,style,img').remove();console.log('EMPTY_STRUCTURE',page,$('body').text().replace(/\s+/g,' ').slice(0,2000));}
+            }catch(e){console.log('BOUNDARY_ERROR',JSON.stringify({page,status:e.status,message:e.message}));}
+            await new Promise(r=>setTimeout(r,1200));
+          }
+          NODE
