@@ -1,7 +1,26 @@
 {
-  "name": "videoscope", "version": "3.6.0", "private": true, "type": "module",
-  "engines": {"node": ">=22"},
-  "dependencies": {"@netlify/blobs": "^9.1.2", "@netlify/functions": "^4.2.5", "cheerio": "^1.1.2", "ipaddr.js": "^2.2.0", "robots-parser": "^3.0.1"},
-  "devDependencies": {"playwright": "^1.55.0", "esbuild": "^0.25.0"},
-  "scripts": {"build": "node scripts/verify-build.mjs", "test": "node --test tests/metadata.test.mjs", "test:live": "node scripts/live-check.mjs", "test:ui": "node scripts/ui-check.mjs"}
+  "name": "videoscope",
+  "version": "3.7.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^9.1.2",
+    "@netlify/functions": "^4.2.5",
+    "cheerio": "^1.1.2",
+    "ipaddr.js": "^2.2.0",
+    "robots-parser": "^3.0.1"
+  },
+  "devDependencies": {
+    "playwright": "^1.55.0",
+    "esbuild": "^0.25.0"
+  },
+  "scripts": {
+    "build": "node scripts/verify-build.mjs",
+    "test": "node --test tests/metadata.test.mjs tests/search.test.mjs",
+    "test:live": "node scripts/live-check.mjs",
+    "test:ui": "node scripts/ui-check.mjs"
+  }
 }
