@@ -1,0 +1,27 @@
+name: Verify VideoScope
+on:
+  push:
+    branches: [fix/verified-video-metadata, main]
+    paths-ignore: ['README.md', 'docs/**', '.github/workflows/source-diagnostic.yml', 'scripts/detail-diagnostic.mjs']
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npm run build && npm test
+      - run: npx esbuild netlify/functions/api.mts --bundle --platform=node --format=esm --packages=external --outfile=/tmp/api.mjs
+      - name: Compare real source pages against parser
+        run: npm run test:live
+      - name: Browser interactions
+        if: ${{ hashFiles('scripts/ui-check.mjs') != '' }}
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:ui
