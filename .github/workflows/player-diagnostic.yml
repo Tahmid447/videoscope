@@ -1,0 +1,17 @@
+name: Inspect public player metadata
+on:
+  push:
+    branches: [fix/archive-site-support-v34]
+    paths: [.github/workflows/player-diagnostic.yml, scripts/player-diagnostic.mjs]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - run: node scripts/player-diagnostic.mjs
