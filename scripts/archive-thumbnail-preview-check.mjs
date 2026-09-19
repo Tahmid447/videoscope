@@ -3,8 +3,8 @@ import {readPublic} from '../lib/network.mjs';
 import {parseFeed,wordpressPostURL,parseWordPressPostMeta} from '../lib/extract.mjs';
 import {makeJob,scanStep} from '../lib/scanner.mjs';
 
-const base='https://deploy-preview-4--videoscope-3-tahmid.netlify.app';
-const workspace='ci-v36-archive-thumb-integrated-20260919';
+const base='https://videoscope-3-tahmid.netlify.app';
+const workspace='ci-v36-production-archive-thumb-20260919';
 const headers={'content-type':'application/json','x-videoscope-workspace':workspace};
 async function retry(fn,n=4){let last;for(let i=0;i<n;i++){try{return await fn()}catch(e){last=e;if(i<n-1)await new Promise(r=>setTimeout(r,600*(i+1)))}}throw last}
 async function req(path,opts={}){
