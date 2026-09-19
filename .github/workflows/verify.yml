@@ -21,7 +21,12 @@ jobs:
       - name: Compare real source pages against parser
         run: npm run test:live
       - name: Browser interactions
-        if: ${{ hashFiles('scripts/ui-check.mjs') != '' }}
         run: |
           npx playwright install --with-deps chromium
           npm run test:ui
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-checks
+          path: artifacts/
+          retention-days: 7
