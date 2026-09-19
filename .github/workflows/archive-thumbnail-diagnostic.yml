@@ -1,0 +1,17 @@
+name: Diagnose archive thumbnails
+on:
+  push:
+    branches: [fix/archive-thumbnails-v36]
+    paths: [.github/workflows/archive-thumbnail-diagnostic.yml, scripts/archive-thumbnail-diagnostic.mjs]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - run: node scripts/archive-thumbnail-diagnostic.mjs
