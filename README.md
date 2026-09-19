@@ -1,24 +1,37 @@
 # VideoScope
 
-VideoScope is a responsive video-discovery workspace with a Netlify-hosted scanner, filtering, sorting, browser bookmarks, import/export, and light/dark themes.
+VideoScope is a responsive video-discovery workspace with a Netlify-hosted scanner.
 
-## Current repair
+## Current GitHub build
 
-This source fixes the frontend startup bug that prevented Analyze, Import, Saved videos, and theme switching from initializing on the deployed site.
+This repository is the source of truth for the repaired hosted build.
 
-- Scripts are emitted after all page controls.
-- Startup is guarded by `DOMContentLoaded`.
-- Analyze submits to the hosted scanner API and surfaces errors.
-- Saved videos are browser bookmarks, not downloaded video files.
-- Light/Dark mode is explicit and works on desktop and mobile.
-- Netlify build: `npm run build && npm test`
+Working controls:
+- Analyze a public profile/search/category/listing URL
+- Dark / light theme toggle
+- Saved-video browser bookmarks
+- Import JSON or saved public HTML
+- Search, upload-period filtering, and ranking
+- JSON export
+- Recent hosted collections
+- Responsive desktop/mobile dashboard
+
+## Netlify
+
+Use the existing Netlify project: `videoscope-3-tahmid`.
+
+Netlify settings are committed in `netlify.toml`:
 - Publish directory: `static`
 - Functions directory: `netlify/functions`
+- No fragile frontend build step is required
+- Netlify installs the dependencies in `package.json` for the scanner function
 
-## Important backend note
+Once this repository is linked to that existing Netlify project, pushes to `main` can deploy automatically.
 
-The hosted collection storage currently has no user login. Use it only for public, non-sensitive metadata. A private GitHub repository would not make the deployed website private.
+## Saved videos
 
-## Deployment
+Saved videos are bookmarks stored in the browser. They save the source link and collected metadata; they do not download video files.
 
-Link this repository to the existing Netlify project `videoscope-3-tahmid` using Netlify Continuous Deployment. After that, pushes to `main` will build and deploy automatically.
+## Privacy note
+
+Hosted collection storage currently has no user accounts. Use only public, non-sensitive metadata.
