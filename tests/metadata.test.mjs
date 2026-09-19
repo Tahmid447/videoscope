@@ -41,3 +41,17 @@ test('blocked archive can fall back to a public RSS feed',async()=>{
  const read=async(target)=>{calls.push(target);if(target===url){const e=new Error('HTTP 403');e.status=403;throw e}return {url:target,contentType:'application/rss+xml',html:'<rss><channel><title>Name</title><item><title>Video A</title><link>https://example.com/a/</link><pubDate>Mon, 14 Sep 2026 13:11:00 +0000</pubDate><description><![CDATA[<iframe src="about:blank"></iframe> video]]></description></item></channel></rss>'}};
  await scanStep(j,c,read,async()=>({origin:'https://example.com',text:''}));assert.equal(c.items.length,1);assert.equal(c.items[0].title,'Video A');assert.ok(calls.includes('https://example.com/actress/name/feed/'))
 });
+
+test('JSON-LD contentUrl is exposed as a downloadable source file',()=>{
+ const data={'@type':'VideoObject',name:'Public clip',url:'https://example.com/watch/1',contentUrl:'https://cdn.example.com/media/clip.mp4',encodingFormat:'video/mp4'};
+ const v=parseListing('<script type="application/ld+json">'+JSON.stringify(data)+'</script>',base).items[0];
+ assert.equal(v.source_files.length,1);assert.equal(v.source_files[0].url,'https://cdn.example.com/media/clip.mp4')
+});
+test('detail extracts direct media from video, OpenGraph, and download links without player-only URLs',()=>{
+ const html='<meta property="og:type" content="video"><meta property="og:title" content="Clip"><meta property="og:video:secure_url" content="https://cdn.example.com/og.mp4"><video><source src="/movie.webm" type="video/webm"></video><a href="/alt.mp4">MP4 file</a><a href="/watch/other">Player</a>';
+ const v=parseDetail(html,'https://example.com/watch/1');
+ assert.equal(v.source_files.some(x=>x.url==='https://cdn.example.com/og.mp4'),true);
+ assert.equal(v.source_files.some(x=>x.url==='https://example.com/movie.webm'),true);
+ assert.equal(v.download_links.some(x=>x.url==='https://example.com/alt.mp4'),true);
+ assert.equal(v.download_links.some(x=>x.url==='https://example.com/watch/other'),false)
+});
