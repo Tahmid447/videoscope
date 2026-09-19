@@ -8,7 +8,7 @@ async function req(path,opts={}){
  const text=await r.text();let data;try{data=JSON.parse(text)}catch{throw new Error(path+' non-JSON '+r.status+' '+text.slice(0,300))}
  if(!r.ok)throw new Error(path+' '+r.status+' '+JSON.stringify(data));return data;
 }
-for(let i=0;i<24;i++){try{const c=await req('/api/config');if(c.version==='3.4.0')break}catch{}if(i===23)throw new Error('Preview did not reach VideoScope 3.4');await sleep(5000)}
+for(let i=0;i<24;i++){try{const c=await req('/api/config');if(c.version==='3.4.1')break}catch{}if(i===23)throw new Error('Preview did not reach VideoScope 3.4');await sleep(5000)}
 async function scan(url,pages){
  let job=await req('/api/scans',{method:'POST',body:JSON.stringify({url,pages,enrich:false,start_at_first:true})});
  for(let i=0;i<80&&!['complete','partial','failed','stopped'].includes(job.status);i++)job=await req('/api/scans/'+job.id+'/step',{method:'POST',body:JSON.stringify({revision:job.revision})});
@@ -25,4 +25,4 @@ assert.ok(archive.job.warnings.some(x=>/RSS\/Atom feed/.test(x)));
 const tokyo=await scan('https://www.tokyomotion.net/user/yua_xx/videos',1);
 assert.equal(tokyo.c.items.length,18);
 assert.ok(tokyo.c.items.every(x=>x.title&&!/^(EN|Login|More|Favorite Videos)$/.test(x.title)));
-console.log('PREVIEW_34_VERIFIED');
+console.log('PREVIEW_341_VERIFIED');
