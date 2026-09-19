@@ -13,3 +13,11 @@ assert.ok(collection.items.length>=30,'expected public feed fallback to collect 
 assert.ok(collection.items.every(x=>x.title&&x.url),'every feed record needs a real title and URL');
 assert.ok(collection.items.some(x=>x.published_at),'feed publication dates should be preserved');
 assert.ok(job.warnings.some(x=>/RSS\/Atom feed/.test(x)),'scan should disclose fallback source');
+
+let rich=makeJob(url,1,true),rc={id:'rich',input:url,label:'',items:[],pages:0};
+for(let i=0;i<40&&!['complete','partial','failed'].includes(rich.status);i++){const out=await scanStep(rich,rc);rich=out.job;rc=out.c}
+const thumbs=rc.items.filter(x=>x.thumbnail_url).length,views=rc.items.filter(x=>typeof x.views==='number').length;
+console.log('PLAYER_ENRICH_RESULT',JSON.stringify({status:rich.status,items:rc.items.length,thumbnails:thumbs,views,detailFailures:rich.details_failed}));
+assert.ok(rc.items.length>=10,'enriched feed scan should keep real entries');
+assert.ok(thumbs>=1,'public player metadata should recover at least one thumbnail');
+assert.equal(views,0,'player pages examined do not expose view counts; scanner must not invent them');
