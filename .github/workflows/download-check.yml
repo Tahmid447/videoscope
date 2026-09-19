@@ -1,4 +1,4 @@
-name: Verify VideoScope 3.5 downloads
+name: Verify VideoScope download link controls
 on:
   push:
     branches: [fix/download-first-v35]
@@ -8,13 +8,13 @@ permissions:
   contents: read
 jobs:
   downloads:
+    if: github.head_ref == 'fix/download-first-v35' || github.ref_name == 'fix/download-first-v35'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
+        with: {node-version: '22'}
       - run: npm install --no-audit --no-fund
       - run: npx playwright install --with-deps chromium
       - run: node scripts/download-preview-check.mjs

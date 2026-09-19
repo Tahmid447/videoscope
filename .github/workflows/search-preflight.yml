@@ -2,7 +2,7 @@ name: Search repair preflight
 on:
   push:
     branches: [fix/search-complete-v37]
-    paths: [.github/workflows/search-preflight.yml, scripts/apply-search-v37.mjs]
+    paths: [.github/workflows/search-preflight.yml, scripts/apply-search-v37.mjs, scripts/upgrade-search-orders.mjs, lib/search-orders.mjs]
 permissions:
   contents: write
 concurrency:
@@ -18,15 +18,14 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22'}
       - run: npm install --ignore-scripts --no-audit --no-fund
-      - name: Apply targeted source migration
+      - name: Apply source migration
         run: |
-          if grep -q "VERSION='3.6.0'" lib/extract.mjs; then
-            node scripts/apply-search-v37.mjs
-          fi
+          if grep -q "VERSION='3.6.0'" lib/extract.mjs; then node scripts/apply-search-v37.mjs; fi
+          node scripts/upgrade-search-orders.mjs
+          git restore .github/workflows/download-check.yml
           node --input-type=module <<'NODE'
           import {readFileSync,writeFileSync} from 'node:fs';
           const p=JSON.parse(readFileSync('package.json','utf8'));
-          // The obsolete 3.2 src/core suite is not part of the deployed app.
           p.scripts.test='node --test tests/metadata.test.mjs tests/search.test.mjs';
           writeFileSync('package.json',JSON.stringify(p,null,2)+'\n');
           NODE
@@ -39,13 +38,13 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           npm run test:ui
-      - name: Compare all advertised search pages to their original records
+      - name: Compare complete search against original listings
         run: node scripts/search-complete-live.mjs
-      - name: Commit verified edits to this repair branch only
+      - name: Commit tested application edits to repair branch
         run: |
-          git add lib/extract.mjs lib/scanner.mjs netlify/functions/api.mts static/index.html static/app.js package.json scripts/ui-check.mjs scripts/hosted-check.mjs tests/metadata.test.mjs .github/workflows/download-check.yml
+          git add lib/extract.mjs lib/scanner.mjs lib/scan-engine.mjs netlify/functions/api.mts static/index.html static/app.js package.json scripts/ui-check.mjs scripts/hosted-check.mjs tests/metadata.test.mjs
           if ! git diff --cached --quiet; then
-            git -c user.name='VideoScope verification' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Fix search cards, complete pagination, and resumable saved progress'
+            git -c user.name='VideoScope verification' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Apply tested complete-search and saved-progress integration'
             git push origin HEAD:fix/search-complete-v37
           fi
           git rev-parse HEAD
