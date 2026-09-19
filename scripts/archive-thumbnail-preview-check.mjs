@@ -5,8 +5,9 @@ import {parseFeed,wordpressPostURL,parseWordPressPostMeta} from '../lib/extract.
 const base='https://deploy-preview-4--videoscope-3-tahmid.netlify.app';
 const workspace='ci-v36-archive-thumb-integrated-20260919';
 const headers={'content-type':'application/json','x-videoscope-workspace':workspace};
+async function retry(fn,n=4){let last;for(let i=0;i<n;i++){try{return await fn()}catch(e){last=e;if(i<n-1)await new Promise(r=>setTimeout(r,600*(i+1)))}}throw last}
 async function req(path,opts={}){
- const r=await fetch(base+path,{...opts,headers:{...headers,...opts.headers},signal:AbortSignal.timeout(55000)});
+ const r=await retry(()=>fetch(base+path,{...opts,headers:{...headers,...opts.headers},signal:AbortSignal.timeout(55000)}));
  const text=await r.text();let data;try{data=JSON.parse(text)}catch{throw new Error(path+' non-JSON '+r.status+' '+text.slice(0,200))}
  if(!r.ok)throw new Error(path+' '+r.status+' '+JSON.stringify(data));return data
 }
@@ -25,11 +26,11 @@ await req('/api/collections/'+job.collection_id,{method:'DELETE'}).catch(()=>{})
 let total=0,thumbs=0;
 for(let page=1;page<=20;page++){
  const u=new URL('https://internetchicks.com/actress/lillian-phillips/feed/');if(page>1)u.searchParams.set('paged',String(page));
- let feed;try{feed=await readPublic(u.href,{html:false,limit:4_000_000,timeout:20000})}catch(e){if(page>1)break;throw e}
+ let feed;try{feed=await retry(()=>readPublic(u.href,{html:false,limit:4_000_000,timeout:20000}))}catch(e){if(page>1)break;throw e}
  const parsed=parseFeed(feed.html,feed.url);if(!parsed.items.length)break;
  for(const item of parsed.items){
   total++;
-  const api=wordpressPostURL(item.url),x=await readPublic(api,{html:false,limit:2_000_000,timeout:15000}),meta=parseWordPressPostMeta(x.html,x.url);
+  const api=wordpressPostURL(item.url),x=await retry(()=>readPublic(api,{html:false,limit:2_000_000,timeout:15000})),meta=parseWordPressPostMeta(x.html,x.url);
   if(meta?.thumbnail_url)thumbs++;
  }
  console.log('SOURCE_PAGE',JSON.stringify({page,items:parsed.items.length,total,thumbs}));
