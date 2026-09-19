@@ -1,5 +1,5 @@
 {
-  "name": "videoscope", "version": "3.4.0", "private": true, "type": "module",
+  "name": "videoscope", "version": "3.5.0", "private": true, "type": "module",
   "engines": {"node": ">=22"},
   "dependencies": {"@netlify/blobs": "^9.1.2", "@netlify/functions": "^4.2.5", "cheerio": "^1.1.2", "ipaddr.js": "^2.2.0", "robots-parser": "^3.0.1"},
   "devDependencies": {"playwright": "^1.55.0", "esbuild": "^0.25.0"},
