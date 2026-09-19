@@ -1,0 +1,42 @@
+name: Source diagnostic
+on:
+  push:
+    branches: [fix/verified-video-metadata]
+    paths: [.github/workflows/source-diagnostic.yml, scripts/source-diagnostic.mjs]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Read public source structure
+        run: |
+          node --input-type=module <<'NODE'
+          import * as cheerio from 'cheerio';
+          const base='https://www.tokyomotion.net/user/yua_xx/videos';
+          const res=await fetch(base,{signal:AbortSignal.timeout(25000),headers:{'user-agent':'VideoScope/3.3 public metadata test'}});
+          const html=await res.text(), $=cheerio.load(html);
+          console.log('HTTP',res.status,'bytes',html.length,'title', $('title').text());
+          console.log('HEADINGS', $('h1,h2,h3').map((i,n)=>({tag:n.tagName,cls:$(n).attr('class'),text:$(n).text().trim().slice(0,90)})).get().slice(0,8));
+          const links=$('a[href]').filter((i,n)=>/^\/video\/\d+\//.test($(n).attr('href')||''));
+          console.log('VIDEO_LINKS',links.length,'UNIQUE',new Set(links.map((i,n)=>($(n).attr('href')||'').match(/^\/video\/\d+/)?.[0]).get()).size);
+          let done=new Set();
+          for(const n of links.toArray()){
+            const key=($(n).attr('href')||'').match(/^\/video\/\d+/)?.[0];if(done.has(key))continue;done.add(key);
+            if(done.size>2)break;
+            let x=$(n);for(let i=0;i<5;i++,x=x.parent()){
+              const copy=cheerio.load($.html(x));copy('a').each((_,a)=>{const z=copy(a),h=z.attr('href')||'';if(h.startsWith('/video/')){z.attr('href',h.replace(/(\/video\/\d+\/).*/, '$1sample-title'));z.attr('title','[source title]');if(!z.find('img').length)z.text('[source title]');}});copy('img').each((_,im)=>{const z=copy(im);z.attr('alt','[source title]');for(const a of ['src','data-src','data-original'])if(z.attr(a))z.attr(a,'https://cdn.example/thumbnail.jpg');});copy('script,style').remove();
+              console.log('ANCESTOR',i,x[0]?.tagName,x.attr('class'),copy('body').html()?.slice(0,14500));
+              if(x.find('a[href^="/video/"]').length>=4)break;
+            }
+          }
+          console.log('PAGINATION',$('.pagination,.paging,.pager').map((i,n)=>$.html(n)).get().join('\n').slice(0,16000));
+          console.log('COUNTS', $('body').text().match(/.{0,55}(?:videos\s*\(\s*\d+\s*\)|\d+\s+videos|showing\s+\d+).{0,65}/gi)?.slice(0,15));
+          console.log('ROBOTS',await fetch('https://www.tokyomotion.net/robots.txt',{signal:AbortSignal.timeout(10000)}).then(r=>r.text()).catch(e=>e.message));
+          NODE
