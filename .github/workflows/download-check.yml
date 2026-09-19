@@ -1,0 +1,20 @@
+name: Verify VideoScope 3.5 downloads
+on:
+  push:
+    branches: [fix/download-first-v35]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  downloads:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/download-preview-check.mjs
