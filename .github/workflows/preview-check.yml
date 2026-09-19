@@ -1,0 +1,17 @@
+name: Verify Netlify preview 3.4
+on:
+  push:
+    branches: [fix/archive-site-support-v34]
+permissions:
+  contents: read
+jobs:
+  hosted:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify deployed preview against both real source styles
+        run: node scripts/preview-check.mjs

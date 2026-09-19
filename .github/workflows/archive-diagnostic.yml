@@ -1,0 +1,20 @@
+name: Verify archive-style sources
+on:
+  push:
+    branches: [fix/archive-site-support-v34]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Unit tests
+        run: npm test
+      - name: Real protected-archive fallback test
+        run: node scripts/archive-live-check.mjs
