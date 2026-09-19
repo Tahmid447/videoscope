@@ -12,13 +12,18 @@ The source supplied relative date labels, not exact upload timestamps, for these
 
 An additional live W3C HTML video demonstration page was detected correctly and exposed three source media links.
 
-## Test evidence
+A separate real-browser test loaded an original thumbnail directly from the source CDN with HTTP 200 and confirmed a decoded size of 256 x 144 pixels. This was an actual image GET and browser render, not just verification that the record contained an image URL. The earlier server-side HEAD request had timed out; the browser GET succeeded. This one-image rendering test does not assert that every source image will always remain reachable.
+
+## Reproducible test evidence
 
 - Unit, live extraction and UI run: https://github.com/Tahmid447/videoscope/actions/runs/35440497678
 - Hosted preview API and browser run: https://github.com/Tahmid447/videoscope/actions/runs/35440602824
+- Original source thumbnail browser-render test: https://github.com/Tahmid447/videoscope/actions/runs/35440854972
 
-The thumbnail HEAD probe from the server timed out. Original thumbnail rendering is therefore being tested separately in an actual browser rather than assumed from a stored image URL.
+The `Verify production release` workflow repeats the full hosted test against the production URL after main is updated. Its result and JSON artifact are recorded in GitHub Actions; a successful preview is not itself a claim that production was deployed.
 
 ## Not asserted
 
-This is not a guarantee that every website or every future source layout works. It does not establish the availability of private videos, exact timestamps absent from a source, historical view counts, or unexposed comments. Public source file links may expire or open in the browser instead of downloading.
+This is not a guarantee that every website or every future source layout works. It does not establish the availability of private videos, exact timestamps absent from a source, historical view counts, or unexposed comments. Public source-file links may expire or open in the browser instead of downloading.
+
+Browser checks use Chromium at desktop and mobile viewport sizes. They are not tests on physical iPhone hardware. This personal-study app has not undergone a full production security audit.
