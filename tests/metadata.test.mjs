@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseListing,parseDetail,parseFeed,feedURL,numberOf,durationOf,dateOf,urlOf,identity} from '../lib/extract.mjs';
+import {parseListing,parseDetail,parseFeed,feedURL,wordpressPostURL,parseWordPressPostMeta,numberOf,durationOf,dateOf,urlOf,identity} from '../lib/extract.mjs';
 import {publicAddress,publicURL,allowedByRobots} from '../lib/network.mjs';
 import {makeJob,scanStep} from '../lib/scanner.mjs';
 const base='https://example.com/user/creator/videos';
@@ -54,4 +54,21 @@ test('detail extracts direct media from video, OpenGraph, and download links wit
  assert.equal(v.source_files.some(x=>x.url==='https://example.com/movie.webm'),true);
  assert.equal(v.download_links.some(x=>x.url==='https://example.com/alt.mp4'),true);
  assert.equal(v.download_links.some(x=>x.url==='https://example.com/watch/other'),false)
+});
+
+test('WordPress post metadata supplies a featured thumbnail',()=>{
+ const url=wordpressPostURL('https://example.com/lillian-phillips-demo-video/');
+ assert.equal(url,'https://example.com/wp-json/wp/v2/posts?slug=lillian-phillips-demo-video&_embed=wp%3Afeaturedmedia');
+ const meta=parseWordPressPostMeta([{id:9,featured_media:8,_embedded:{'wp:featuredmedia':[{
+  source_url:'https://example.com/full.jpg',media_details:{sizes:{medium:{source_url:'https://example.com/medium.jpg'},large:{source_url:'https://example.com/large.jpg'}}}
+ }]}}],url);
+ assert.equal(meta.thumbnail_url,'https://example.com/large.jpg')
+});
+test('detail fallback can recover thumbnail from public WordPress API',async()=>{
+ const url='https://example.com/post-a/',j=makeJob(url,1,true),c={items:[],input:url};j.stage='details';j.queue=[{id:'a',url,candidate:false}];j.robots={origin:'https://example.com',text:''};c.items=[{id:'a',url,title:'A',thumbnail_url:null,availability:'public listing'}];
+ const read=async(target,opts={})=>{if(target===url){const e=new Error('HTTP 403');e.status=403;throw e}if(target.includes('/wp-json/wp/v2/posts'))return {url:target,html:JSON.stringify([{id:1,featured_media:2,_embedded:{'wp:featuredmedia':[{
+  source_url:'https://example.com/full.jpg',media_details:{sizes:{medium:{source_url:'https://example.com/thumb.jpg'}}}
+ }]}}]),contentType:'application/json'};throw new Error('unexpected '+target)};
+ await scanStep(j,c,read,async target=>({origin:new URL(target).origin,text:''}));
+ assert.equal(c.items[0].thumbnail_url,'https://example.com/thumb.jpg')
 });
