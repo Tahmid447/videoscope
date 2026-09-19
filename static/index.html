@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0f14">
+<title>VideoScope · Discover without endless scrolling</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="logo">V</span><div><strong>VideoScope</strong><small>DISCOVERY WORKSPACE</small></div></div>
+    <button id="navExplore" class="nav active">Explore</button>
+    <button id="navSaved" class="nav">Saved videos <span id="savedCount">0</span></button>
+    <div class="side-label">RECENT COLLECTIONS</div>
+    <div id="recentCollections" class="recent"><p>Your scans will appear here.</p></div>
+    <div class="side-bottom"><button id="settingsButton" class="nav">About & settings</button><small>VideoScope 3.2 · GitHub build</small></div>
+  </aside>
+
+  <div class="workspace">
+    <header class="topbar">
+      <div><span class="crumb">Workspace /</span> <strong>Explore</strong></div>
+      <div class="top-actions">
+        <button id="themeButton" class="btn ghost" type="button">Light mode</button>
+        <button id="importButton" class="btn ghost" type="button">Import</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="eyebrow">YOUR LINKS. A BETTER VIEW.</div>
+        <h1>Less scrolling.<br><em>More discovering.</em></h1>
+        <p>Paste a public profile, search, category, or video-list page. VideoScope collects the metadata it can see and lets you rank and filter it.</p>
+        <form id="sourceForm" class="source-form">
+          <input id="sourceUrl" type="url" inputmode="url" required placeholder="https://example.com/profile/videos">
+          <button id="scanButton" class="btn primary" type="submit">Analyze page →</button>
+        </form>
+        <div class="source-options">
+          <label>Scan depth
+            <select id="scanDepth">
+              <option value="1">1 page</option>
+              <option value="5" selected>5 pages</option>
+              <option value="10">10 pages</option>
+              <option value="25">25 pages</option>
+            </select>
+          </label>
+          <span>Public metadata only</span>
+        </div>
+      </section>
+
+      <section id="status" class="status" hidden>
+        <div><strong id="statusTitle">Preparing scan…</strong><small id="statusText"></small></div>
+        <button id="retryButton" class="btn ghost" hidden>Retry</button>
+      </section>
+
+      <section class="stats">
+        <div class="stat"><small>INDEXED VIDEOS</small><strong id="statVideos">—</strong><span>Collected records</span></div>
+        <div class="stat"><small>REPORTED VIEWS</small><strong id="statViews">—</strong><span>Known totals</span></div>
+        <div class="stat"><small>UPLOADS / 7 DAYS</small><strong id="statRecent">—</strong><span>Known upload dates</span></div>
+        <div class="stat"><small>PAGES SCANNED</small><strong id="statPages">—</strong><span>Collection coverage</span></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h2>Make the results yours.</h2><button id="resetFilters" class="link-button">Reset</button></div>
+        <div class="filters">
+          <label>Search<input id="query" type="search" placeholder="Title or source…"></label>
+          <label>Upload period<select id="period"><option value="all">All uploads</option><option value="today">Today</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="365">Last year</option></select></label>
+          <label>Rank by<select id="sort"><option value="views_desc">Most viewed</option><option value="likes_desc">Most liked</option><option value="rating_desc">Highest rated</option><option value="published_desc">Newest</option><option value="published_asc">Oldest</option><option value="duration_desc">Longest</option><option value="duration_asc">Shortest</option></select></label>
+        </div>
+      </section>
+
+      <section class="results">
+        <div class="results-head">
+          <div><small id="collectionSource">READY WHEN YOU ARE</small><h2 id="collectionTitle">Your next discovery starts here.</h2><p id="collectionSummary">Paste a link above to create a collection.</p></div>
+          <button id="exportButton" class="btn ghost" disabled>Export JSON</button>
+        </div>
+        <div id="videoGrid" class="grid"></div>
+        <div id="emptyState" class="empty">
+          <div class="empty-icon">⌕</div><h3>One link. A clearer collection.</h3><p>Analyze a public listing page and the results will appear here.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<dialog id="importDialog">
+  <form method="dialog" class="dialog-card">
+    <div class="dialog-head"><h2>Import collection</h2><button value="cancel" class="x">×</button></div>
+    <p>Import a VideoScope JSON file or a saved public HTML page. HTML scripts are not executed.</p>
+    <input id="importUrl" type="url" placeholder="Original page URL (for HTML)">
+    <input id="importFile" type="file" accept=".json,.html,.htm,application/json,text/html">
+    <p id="importError" class="error" hidden></p>
+    <div class="dialog-actions"><button value="cancel" class="btn ghost">Cancel</button><button id="importConfirm" value="default" class="btn primary" type="button">Import</button></div>
+  </form>
+</dialog>
+
+<dialog id="settingsDialog">
+  <form method="dialog" class="dialog-card">
+    <div class="dialog-head"><h2>About this build</h2><button value="cancel" class="x">×</button></div>
+    <p><strong>Saved videos</strong> are browser bookmarks. They save the result link and metadata on this device; they do not download the video.</p>
+    <p><strong>Hosted collections</strong> currently use shared site storage without user accounts. Do not use private or sensitive data.</p>
+    <p>The scanner can only rank fields a source actually exposes. Missing views, likes, dates, or ratings remain unavailable.</p>
+    <button value="cancel" class="btn primary">Done</button>
+  </form>
+</dialog>
+
+<script src="/app.js" defer></script>
+</body>
+</html>
