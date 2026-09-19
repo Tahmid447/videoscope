@@ -1,0 +1,17 @@
+name: Verify archive thumbnails
+on:
+  push:
+    branches: [fix/archive-thumbnails-v36]
+permissions:
+  contents: read
+jobs:
+  archive-thumbnails:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - run: node scripts/archive-thumbnail-preview-check.mjs
