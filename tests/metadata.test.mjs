@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseListing,parseDetail,numberOf,durationOf,dateOf,urlOf,identity} from '../lib/extract.mjs';
+import {parseListing,parseDetail,parseFeed,feedURL,numberOf,durationOf,dateOf,urlOf,identity} from '../lib/extract.mjs';
 import {publicAddress,publicURL,allowedByRobots} from '../lib/network.mjs';
 import {makeJob,scanStep} from '../lib/scanner.mjs';
 const base='https://example.com/user/creator/videos';
@@ -30,3 +30,14 @@ test('source robots exclusions are respected',()=>{const rules={origin:'https://
 test('scan walks forward once and matches source total',async()=>{let j=makeJob(base,25,false),c={items:[],input:base};const mock=async url=>({url,html:(url.includes('page=2')?card(2):card(1)+'<div class="pagination"><a href="?page=2">2</a></div>')+'Showing 1 to 1 of 2 videos'}),robots=async()=>({origin:'https://example.com',text:''});await scanStep(j,c,mock,robots);await scanStep(j,c,mock,robots);assert.equal(j.status,'complete');assert.equal(j.pages,2);assert.equal(c.items.length,2);assert.equal(j.coverage,'source count matched')});
 test('hitting page limit is partial, not all videos found',async()=>{const j=makeJob(base,1,false),c={items:[]};await scanStep(j,c,async url=>({url,html:card(1)+'Showing 1 to 18 of 72 videos<div class="pagination"><a href="?page=2">2</a></div>'}),async()=>({origin:'https://example.com',text:''}));assert.equal(j.status,'partial');assert.equal(j.coverage,'page limit reached')});
 test('failed sources do not become successful empty scans',async()=>{const j=makeJob(base,1,false),c={items:[]};await scanStep(j,c,async()=>{throw new Error('HTTP 403')},async()=>({origin:'https://example.com',text:''}));assert.equal(j.status,'failed');assert.equal(c.items.length,0)});
+
+test('RSS video feed entries become verified collection records',()=>{
+ const xml='<?xml version="1.0"?><rss><channel><title>Creator feed</title><item><title>Public Video A</title><link>https://example.com/post-a/</link><pubDate>Mon, 14 Sep 2026 13:11:00 +0000</pubDate><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">creator</dc:creator><category>Tag A</category><description><![CDATA[<iframe src="about:blank"></iframe><p>Video post</p>]]></description></item></channel></rss>';
+ const p=parseFeed(xml,'https://example.com/creator/feed/');assert.equal(p.items.length,1);assert.equal(p.items[0].title,'Public Video A');assert.equal(p.items[0].creator,'creator');assert.equal(p.items[0].published_at,'2026-09-14T13:11:00.000Z');assert.equal(p.items[0].date_precision,'timestamp');assert.equal(p.items[0].tags[0],'Tag A')
+});
+test('feed fallback URL stays on the same archive path',()=>assert.equal(feedURL('https://example.com/actress/name/'),'https://example.com/actress/name/feed/'));
+test('blocked archive can fall back to a public RSS feed',async()=>{
+ const url='https://example.com/actress/name/',j=makeJob(url,3,false),c={items:[],input:url};let calls=[];
+ const read=async(target)=>{calls.push(target);if(target===url){const e=new Error('HTTP 403');e.status=403;throw e}return {url:target,contentType:'application/rss+xml',html:'<rss><channel><title>Name</title><item><title>Video A</title><link>https://example.com/a/</link><pubDate>Mon, 14 Sep 2026 13:11:00 +0000</pubDate><description><![CDATA[<iframe src="about:blank"></iframe> video]]></description></item></channel></rss>'}};
+ await scanStep(j,c,read,async()=>({origin:'https://example.com',text:''}));assert.equal(c.items.length,1);assert.equal(c.items[0].title,'Video A');assert.ok(calls.includes('https://example.com/actress/name/feed/'))
+});
