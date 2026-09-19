@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 
-const base='https://deploy-preview-3--videoscope-3-tahmid.netlify.app';
-const workspace='ci-v35-download-check-20260919';
+const base='https://videoscope-3-tahmid.netlify.app';
+const workspace='ci-v35-production-download-check-20260919';
 const headers={'content-type':'application/json','x-videoscope-workspace':workspace};
 async function req(path,opts={}){
  const r=await fetch(base+path,{...opts,headers:{...headers,...opts.headers},signal:AbortSignal.timeout(55000)});
@@ -30,4 +30,4 @@ assert.ok(downloadCount>=1,'Download button should be visible on at least one re
 const first=page.locator('.video-card .download-action').first();const href=await first.getAttribute('href'),downloadAttr=await first.getAttribute('download');console.log('DOWNLOAD_LINK',JSON.stringify({href,downloadAttr}));assert.ok(/^https?:\/\//.test(href||''));assert.ok(downloadAttr!==null);
 await browser.close();
 await req('/api/collections/'+job.collection_id,{method:'DELETE'}).catch(()=>{});
-console.log('DOWNLOAD_PREVIEW_VERIFIED');
+console.log('DOWNLOAD_PRODUCTION_VERIFIED');
