@@ -20,11 +20,9 @@ assert.ok(downloadable.length>=1,'real enriched source should expose at least on
 const browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:1440,height:1000}});
 await page.addInitScript(({workspace})=>localStorage.setItem('videoscope-workspace-v33',JSON.stringify(workspace)),{workspace});
 await page.goto(base,{waitUntil:'networkidle'});
-await page.locator('#sourceUrl').fill('https://www.tokyomotion.net/user/yua_xx/videos');
-await page.locator('#scanDepth').selectOption('5');
-await page.locator('#sourceForm').evaluate(f=>f.requestSubmit());
-await page.waitForFunction(()=>document.querySelectorAll('.video-card').length>0,{timeout:120000});
-await page.waitForFunction(()=>!document.querySelector('#scanButton').disabled,{timeout:180000});
+await page.waitForFunction(()=>document.querySelectorAll('#recentCollections .recent-item').length>0,{timeout:30000});
+await page.locator('#recentCollections .recent-item').first().click();
+await page.waitForFunction(()=>document.querySelectorAll('.video-card').length>0,{timeout:30000});
 await page.waitForFunction(()=>document.querySelectorAll('.video-card .download-action').length>0,{timeout:30000});
 const downloadCount=await page.locator('.video-card .download-action').count();
 console.log('DOWNLOAD_UI',JSON.stringify({downloadButtons:downloadCount,cards:await page.locator('.video-card').count()}));
