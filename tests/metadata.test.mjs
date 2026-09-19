@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseListing,parseDetail,parseFeed,feedURL,numberOf,durationOf,dateOf,urlOf,identity} from '../lib/extract.mjs';
+import {parseListing,parseDetail,parseFeed,feedURL,parsePlayerMeta,numberOf,durationOf,dateOf,urlOf,identity} from '../lib/extract.mjs';
 import {publicAddress,publicURL,allowedByRobots} from '../lib/network.mjs';
 import {makeJob,scanStep} from '../lib/scanner.mjs';
 const base='https://example.com/user/creator/videos';
@@ -41,3 +41,9 @@ test('blocked archive can fall back to a public RSS feed',async()=>{
  const read=async(target)=>{calls.push(target);if(target===url){const e=new Error('HTTP 403');e.status=403;throw e}return {url:target,contentType:'application/rss+xml',html:'<rss><channel><title>Name</title><item><title>Video A</title><link>https://example.com/a/</link><pubDate>Mon, 14 Sep 2026 13:11:00 +0000</pubDate><description><![CDATA[<iframe src="about:blank"></iframe> video]]></description></item></channel></rss>'}};
  await scanStep(j,c,read,async()=>({origin:'https://example.com',text:''}));assert.equal(c.items.length,1);assert.equal(c.items[0].title,'Video A');assert.ok(calls.includes('https://example.com/actress/name/feed/'))
 });
+
+test('public player metadata can supply missing thumbnail and explicit views',()=>{
+ const p=parsePlayerMeta('<meta property="og:image" content="/poster.jpg"><meta property="og:title" content="Player title"><div>1,234 views</div>','https://mirror.example/e/a');
+ assert.equal(p.thumbnail_url,'https://mirror.example/poster.jpg');assert.equal(p.views,1234);assert.equal(p.player_title,'Player title')
+});
+test('public player metadata does not invent a view count',()=>assert.equal(parsePlayerMeta('<meta property="og:image" content="/poster.jpg">','https://mirror.example/e/a').views,null));
