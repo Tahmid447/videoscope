@@ -1,6 +1,8 @@
 import * as cheerio from 'cheerio';
-const r=await fetch('https://internetchicks.com/actress/lillian-phillips/feed/',{headers:{'user-agent':'Mozilla/5.0','accept':'application/rss+xml,application/xml,text/xml;q=0.9,*/*;q=0.5'},signal:AbortSignal.timeout(20000)});
-const xml=await r.text(),$=cheerio.load(xml,{xmlMode:true}),raw=$('item').first().find('content\\:encoded').text(),h=cheerio.load(raw);
-const nodes=h('*').map((_,n)=>({tag:n.tagName,id:h(n).attr('id'),cls:h(n).attr('class'),attrs:Object.fromEntries(Object.entries(h(n).attr()||{}).filter(([k])=>/^data-|src$|href$|poster|type|name$/.test(k)))})).get();
-console.log('STRUCTURE',JSON.stringify(nodes.slice(0,120)));
-console.log('VIEW_TOKENS',JSON.stringify((raw.match(/.{0,60}(?:views?|plays?|counter|post-views).{0,100}/gi)||[]).slice(0,20)));
+const urls=['https://streamtape.com/e/9jyMK70P1zCakY0','https://hgcloud.to/e/7v0eolfnrhc8','https://playmogo.com/e/synctejviq3b','https://voe.sx/e/k1yxmwfo1vcu'];
+for(const u of urls){try{
+ const r=await fetch(u,{redirect:'follow',headers:{'user-agent':'Mozilla/5.0','accept':'text/html,application/xhtml+xml,*/*;q=0.8'},signal:AbortSignal.timeout(15000)});const html=await r.text(),$=cheerio.load(html);
+ const metas=$('meta').map((_,n)=>({n:$(n).attr('property')||$(n).attr('name'),v:$(n).attr('content')})).get().filter(x=>/title|image|duration|view|play|video|date|rating/i.test(x.n||'')).map(x=>({n:x.n,len:String(x.v||'').length,v:/view|duration|rating|date/i.test(x.n||'')?String(x.v||'').slice(0,100):undefined})).slice(0,30);
+ const viewTokens=(html.match(/.{0,60}(?:views?|plays?|view_count|play_count).{0,100}/gi)||[]).map(x=>x.replace(/https?:\/\/[^"'\s]+/g,'[url]')).slice(0,20);
+ console.log('EMBED',new URL(r.url).hostname,r.status,r.headers.get('content-type'),html.length,JSON.stringify({metas,viewTokens,video:$('video').length,sources:$('video source').length}));
+ }catch(e){console.log('EMBED_ERROR',new URL(u).hostname,e.message)}}
