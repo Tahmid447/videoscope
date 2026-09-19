@@ -1,0 +1,40 @@
+name: Inspect search collection structure
+on:
+  push:
+    branches: [fix/search-complete-v37]
+    paths: [.github/workflows/search-diagnostic.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Inspect exact public search page without loading media
+        run: |
+          node --input-type=module <<'NODE'
+          import * as cheerio from 'cheerio';
+          import {readPublic,readRobots,allowedByRobots} from './lib/network.mjs';
+          import {parseListing} from './lib/extract.mjs';
+          const source='https://www.tokyomotion.net/search?search_query=%E3%82%A8%E3%82%B9%E3%83%86&search_type=videos';
+          const rules=await readRobots(source);if(!allowedByRobots(rules,source))throw new Error('Source does not permit this read');
+          for(const page of [1,2]){
+            const u=new URL(source);if(page>1)u.searchParams.set('page',String(page));
+            const x=await readPublic(u.href),$=cheerio.load(x.html),parsed=parseListing(x.html,x.url);
+            const links=$('a[href]').filter((_,a)=>{try{return /^\/video\/\d+(?:\/|$)/.test(new URL($(a).attr('href'),x.url).pathname)}catch{return false}});
+            const unique=new Set(links.map((_,a)=>new URL($(a).attr('href'),x.url).pathname.match(/^\/video\/\d+/)[0]).get());
+            console.log('SUMMARY',JSON.stringify({page,status:x.status,bytes:x.html.length,videoAnchors:links.length,uniqueVideos:unique.size,parsed:parsed.items.length,expected:parsed.expected,next:parsed.next}));
+            if(page===1){
+              let n=links.first();for(let i=0;i<6&&n.length;i++,n=n.parent()){
+                const clone=n.clone();clone.find('script,style').remove();clone.find('a').each((_,a)=>{const z=$(a);if(/\/video\//.test(z.attr('href')||'')){z.attr('href',z.attr('href').replace(/(\/video\/\d+).*/,'$1/sample'));z.attr('title','SOURCE TITLE');if(!z.find('img').length)z.text('SOURCE TITLE')}});clone.find('img').each((_,im)=>{const z=$(im);z.attr('alt','SOURCE TITLE');for(const key of ['src','data-src','data-original'])if(z.attr(key))z.attr(key,'https://cdn.example/image.jpg')});
+                console.log('ANCESTOR',i,n[0]?.tagName,n.attr('class'),n.attr('id'),$.html(clone).slice(0,13000));
+                if(n.find('a[href*="/video/"]').length>6)break;
+              }
+              console.log('PAGINATION',$('.pagination,.pager,.paging').map((_,n)=>$.html(n)).get().join('\n').slice(0,12000));
+            }
+          }
+          NODE
