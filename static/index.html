@@ -1,110 +1,25 @@
 <!doctype html>
 <html lang="en" data-theme="dark">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b0f14">
-<title>VideoScope · Discover without endless scrolling</title>
-<link rel="stylesheet" href="/styles.css">
-</head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0a0f15"><meta name="videoscope-build" content="3.3.0"><title>VideoScope · Original data. Your order.</title><link rel="stylesheet" href="/styles.css?v=330"><link rel="stylesheet" href="/metadata.css?v=330"></head>
 <body>
+<a class="skip-link" href="#workspaceMain">Skip to collection</a>
 <div class="app-shell">
-  <aside class="sidebar">
-    <div class="brand"><span class="logo">V</span><div><strong>VideoScope</strong><small>DISCOVERY WORKSPACE</small></div></div>
-    <button id="navExplore" class="nav active">Explore</button>
-    <button id="navSaved" class="nav">Saved videos <span id="savedCount">0</span></button>
-    <div class="side-label">RECENT COLLECTIONS</div>
-    <div id="recentCollections" class="recent"><p>Your scans will appear here.</p></div>
-    <div class="side-bottom"><button id="settingsButton" class="nav">About & settings</button><small>VideoScope 3.2 · GitHub build</small></div>
-  </aside>
-
-  <div class="workspace">
-    <header class="topbar">
-      <div><span class="crumb">Workspace /</span> <strong>Explore</strong></div>
-      <div class="top-actions">
-        <button id="themeButton" class="btn ghost" type="button">Light mode</button>
-        <button id="importButton" class="btn ghost" type="button">Import</button>
-      </div>
-    </header>
-
-    <main>
-      <section class="hero">
-        <div class="eyebrow">YOUR LINKS. A BETTER VIEW.</div>
-        <h1>Less scrolling.<br><em>More discovering.</em></h1>
-        <p>Paste a public profile, search, category, or video-list page. VideoScope collects the metadata it can see and lets you rank and filter it.</p>
-        <form id="sourceForm" class="source-form">
-          <input id="sourceUrl" type="url" inputmode="url" required placeholder="https://example.com/profile/videos">
-          <button id="scanButton" class="btn primary" type="submit">Analyze page →</button>
-        </form>
-        <div class="source-options">
-          <label>Scan depth
-            <select id="scanDepth">
-              <option value="1">1 page</option>
-              <option value="5" selected>5 pages</option>
-              <option value="10">10 pages</option>
-              <option value="25">25 pages</option>
-            </select>
-          </label>
-          <span>Public metadata only</span>
-        </div>
-      </section>
-
-      <section id="status" class="status" hidden>
-        <div><strong id="statusTitle">Preparing scan…</strong><small id="statusText"></small></div>
-        <button id="retryButton" class="btn ghost" hidden>Retry</button>
-      </section>
-
-      <section class="stats">
-        <div class="stat"><small>INDEXED VIDEOS</small><strong id="statVideos">—</strong><span>Collected records</span></div>
-        <div class="stat"><small>REPORTED VIEWS</small><strong id="statViews">—</strong><span>Known totals</span></div>
-        <div class="stat"><small>UPLOADS / 7 DAYS</small><strong id="statRecent">—</strong><span>Known upload dates</span></div>
-        <div class="stat"><small>PAGES SCANNED</small><strong id="statPages">—</strong><span>Collection coverage</span></div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head"><h2>Make the results yours.</h2><button id="resetFilters" class="link-button">Reset</button></div>
-        <div class="filters">
-          <label>Search<input id="query" type="search" placeholder="Title or source…"></label>
-          <label>Upload period<select id="period"><option value="all">All uploads</option><option value="today">Today</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="365">Last year</option></select></label>
-          <label>Rank by<select id="sort"><option value="views_desc">Most viewed</option><option value="likes_desc">Most liked</option><option value="rating_desc">Highest rated</option><option value="published_desc">Newest</option><option value="published_asc">Oldest</option><option value="duration_desc">Longest</option><option value="duration_asc">Shortest</option></select></label>
-        </div>
-      </section>
-
-      <section class="results">
-        <div class="results-head">
-          <div><small id="collectionSource">READY WHEN YOU ARE</small><h2 id="collectionTitle">Your next discovery starts here.</h2><p id="collectionSummary">Paste a link above to create a collection.</p></div>
-          <button id="exportButton" class="btn ghost" disabled>Export JSON</button>
-        </div>
-        <div id="videoGrid" class="grid"></div>
-        <div id="emptyState" class="empty">
-          <div class="empty-icon">⌕</div><h3>One link. A clearer collection.</h3><p>Analyze a public listing page and the results will appear here.</p>
-        </div>
-      </section>
-    </main>
-  </div>
-</div>
-
-<dialog id="importDialog">
-  <form method="dialog" class="dialog-card">
-    <div class="dialog-head"><h2>Import collection</h2><button value="cancel" class="x">×</button></div>
-    <p>Import a VideoScope JSON file or a saved public HTML page. HTML scripts are not executed.</p>
-    <input id="importUrl" type="url" placeholder="Original page URL (for HTML)">
-    <input id="importFile" type="file" accept=".json,.html,.htm,application/json,text/html">
-    <p id="importError" class="error" hidden></p>
-    <div class="dialog-actions"><button value="cancel" class="btn ghost">Cancel</button><button id="importConfirm" value="default" class="btn primary" type="button">Import</button></div>
-  </form>
-</dialog>
-
-<dialog id="settingsDialog">
-  <form method="dialog" class="dialog-card">
-    <div class="dialog-head"><h2>About this build</h2><button value="cancel" class="x">×</button></div>
-    <p><strong>Saved videos</strong> are browser bookmarks. They save the result link and metadata on this device; they do not download the video.</p>
-    <p><strong>Hosted collections</strong> currently use shared site storage without user accounts. Do not use private or sensitive data.</p>
-    <p>The scanner can only rank fields a source actually exposes. Missing views, likes, dates, or ratings remain unavailable.</p>
-    <button value="cancel" class="btn primary">Done</button>
-  </form>
-</dialog>
-
-<script src="/app.js" defer></script>
-</body>
-</html>
+<aside class="sidebar" aria-label="Workspace navigation"><div class="brand"><span class="logo">V</span><div><strong>VideoScope</strong><small>DISCOVERY WORKSPACE</small></div></div><button id="navExplore" class="nav active">Explore</button><button id="navSaved" class="nav">Saved videos <span id="savedCount">0</span></button><div class="side-label">YOUR RECENT COLLECTIONS</div><div id="recentCollections" class="recent"><p>Your next collection starts with a link.</p></div><div class="side-bottom"><button id="settingsButton" class="nav">Backup & tools</button><small id="versionLabel">VideoScope 3.3 · Original metadata</small></div></aside>
+<div class="workspace"><header class="topbar"><div><span class="crumb">Workspace /</span> <strong id="viewLabel">Explore</strong></div><div class="top-actions"><button id="themeButton" class="btn ghost" type="button">Light mode</button><button id="toolsButton" class="btn ghost" type="button">Tools</button></div></header><nav class="mobile-nav" aria-label="Mobile workspace"><button id="mobileExplore" class="nav active">Explore</button><button id="mobileSaved" class="nav">Saved videos <span id="mobileSavedCount">0</span></button></nav>
+<main id="workspaceMain">
+<section class="hero"><div class="eyebrow">ORIGINAL DATA. YOUR ORDER.</div><h1>Less scrolling.<br><em>More discovering.</em></h1><p>Real titles. Original thumbnails. Source-reported numbers.<br>Bring a collection and find the part that matters.</p>
+<form id="sourceForm" class="source-form"><label class="sr-only" for="sourceUrl">Public profile, search, category or video URL</label><input id="sourceUrl" type="url" inputmode="url" required placeholder="Paste a profile, search, category or video URL"><button id="scanButton" class="btn primary" type="submit">Analyze collection →</button></form>
+<div class="source-options"><label>Scan up to <select id="scanDepth"><option value="5">5 pages</option><option value="25" selected>25 pages</option><option value="100">100 pages</option></select></label><label class="check"><input id="enrichDetails" type="checkbox" checked> Read individual video details</label><label class="check"><input id="startFirst" type="checkbox" checked> Start at page 1</label></div></section>
+<section id="status" class="status" role="status" aria-live="polite" hidden><div class="status-copy"><strong id="statusTitle"></strong><small id="statusText"></small><progress id="scanProgress" max="100" value="0" hidden></progress></div><button id="pauseButton" class="btn ghost" hidden>Pause</button><button id="resumeButton" class="btn ghost" hidden>Resume</button><button id="retryButton" class="btn ghost" hidden>Rescan</button></section>
+<section class="stats"><div class="stat"><small>VERIFIED VIDEO ENTRIES</small><strong id="statVideos">—</strong><span id="statCoverage">Not navigation links</span></div><div class="stat"><small>SOURCE-REPORTED VIEWS</small><strong id="statViews">—</strong><span id="statViewsNote">Across collected videos</span></div><div class="stat"><small>METADATA COVERAGE</small><strong id="statMetadata">—</strong><span id="statMetadataNote">Titles, thumbnails & counts</span></div><div class="stat"><small>SOURCE PAGES READ</small><strong id="statPages">—</strong><span id="statPagesNote">Verified pagination</span></div></section>
+<section class="panel"><div class="panel-head"><h2>Find your next watch.</h2><button id="resetFilters" class="link-button">Reset filters</button></div><div class="filters"><label>Search collection<input id="query" type="search" placeholder="Title, creator or tag…"></label><label>Upload period<select id="period"><option value="all">All uploads</option><option value="today">Today</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="365">Last year</option><option value="custom">Choose dates…</option></select></label><label>Rank by<select id="sort"><option value="views_desc">Most viewed</option><option value="likes_desc">Most liked</option><option value="rating_desc">Highest rated</option><option value="published_desc">Newest uploaded</option><option value="published_asc">Oldest uploaded</option><option value="duration_desc">Longest</option><option value="duration_asc">Shortest</option><option value="title_asc">Title A–Z</option></select></label></div>
+<div id="customDates" class="date-range" hidden><label>From <input id="dateFrom" type="date"></label><label>Through <input id="dateTo" type="date"></label><small>Upload dates, not views gained during this period. Estimated dates are marked ≈.</small></div>
+<details id="advancedFilters"><summary>More filters</summary><div class="advanced-grid"><label>Minimum views<input id="minViews" type="number" min="0" step="1" placeholder="Any"></label><label>Minimum likes<input id="minLikes" type="number" min="0" step="1" placeholder="Any"></label><label>Min. length (minutes)<input id="minDuration" type="number" min="0" placeholder="Any"></label><label>Max. length (minutes)<input id="maxDuration" type="number" min="0" placeholder="Any"></label></div></details><div class="filter-footer"><label class="check"><input id="hdOnly" type="checkbox"> HD only</label><label class="check"><input id="blurPreviews" type="checkbox" checked> Blur previews</label><span id="dateNotice">Dates and ratings keep their source meaning.</span></div></section>
+<section class="results"><div class="results-head"><div><small id="collectionSource">READY WHEN YOU ARE</small><h2 id="collectionTitle">One link. A clearer collection.</h2><p id="collectionSummary">Verified video entries will appear here.</p></div><button id="tableButton" class="btn ghost" disabled title="Save the filtered metadata as a spreadsheet-compatible CSV">Save table</button></div><div id="coverageChips" class="coverage-chips" hidden></div><div id="videoGrid" class="grid"></div><div id="emptyState" class="empty"><div class="empty-icon">⌕</div><h3 id="emptyTitle">Your next discovery starts here.</h3><p id="emptyText">Paste a public listing URL above.</p></div><div id="resultPagination" class="result-pagination" hidden><button id="prevResults" class="btn ghost">Previous</button><span id="resultPage"></span><button id="nextResults" class="btn ghost">Next</button></div></section>
+</main></div></div>
+<dialog id="detailDialog" class="detail-dialog"><div class="dialog-card"><div class="dialog-head"><span class="eyebrow">ORIGINAL SOURCE RECORD</span><button class="x" data-close="detailDialog" aria-label="Close details">×</button></div><div id="detailContent"></div></div></dialog>
+<dialog id="toolsDialog"><div class="dialog-card"><div class="dialog-head"><h2>Backup & tools</h2><button class="x" data-close="toolsDialog" aria-label="Close tools">×</button></div><p>Saved videos are bookmarks on this device, not downloaded video files. Collections belong to this browser workspace.</p><div class="tool-grid"><button id="importButton" class="btn ghost">Restore / import collection</button><button id="exportButton" class="btn ghost">Back up collection (JSON)</button><button id="backupSaved" class="btn ghost">Back up bookmarks</button></div><p class="fine-print">JSON is for restoring data. “Save table” creates a file you can open in Excel or Numbers. Only source-provided metadata is collected; unavailable fields remain unavailable.</p><small id="serviceVersion"></small></div></dialog>
+<dialog id="importDialog"><div class="dialog-card"><div class="dialog-head"><h2>Restore / import</h2><button class="x" data-close="importDialog" aria-label="Close import">×</button></div><p>Choose a VideoScope JSON backup or saved public HTML. Imported HTML is parsed; its scripts are not executed.</p><input id="importUrl" type="url" placeholder="Original URL (required for HTML)"><input id="importFile" type="file" accept=".json,.html,.htm,application/json,text/html"><p id="importError" class="error" hidden></p><div class="dialog-actions"><button id="importConfirm" class="btn primary">Import collection</button></div></div></dialog>
+<noscript><p class="status">JavaScript is required to analyze and filter collections.</p></noscript>
+<script src="/app.js?v=330" defer></script>
+</body></html>

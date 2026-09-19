@@ -1,4 +1,10 @@
+/*
+  Cache-Control: no-cache, max-age=0, must-revalidate
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
 /
-  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Cache-Control: no-store
 /index.html
-  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Cache-Control: no-store

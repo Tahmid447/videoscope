@@ -1,0 +1,37 @@
+import {createServer} from 'node:http';
+import {readFile,mkdir} from 'node:fs/promises';
+import {chromium} from 'playwright';
+import assert from 'node:assert/strict';
+const root=new URL('../static/',import.meta.url);const server=createServer(async(req,res)=>{try{const p=new URL(req.url,'http://localhost').pathname,path=p==='/'?'index.html':p.slice(1);if(path.includes('..'))throw new Error('bad path');const data=await readFile(new URL(path,root));res.setHeader('content-type',path.endsWith('.js')?'application/javascript':path.endsWith('.css')?'text/css':'text/html');res.end(data)}catch{res.writeHead(404);res.end('not found')}});await new Promise(r=>server.listen(0,'127.0.0.1',r));const address='http://127.0.0.1:'+server.address().port;
+const browser=await chromium.launch();await mkdir('artifacts',{recursive:true});let checks=0;
+const base={url:'https://example.com/video/1/demo',id:'one',title:'Original lecture title 日本語',source:'example.com',creator:'Teaching Lab',thumbnail_url:'https://cdn.example.com/original.jpg',views:1234,rating:77,rating_best:100,likes:12,duration_seconds:3723,published_at:'2024-01-02',date_precision:'day',date_raw:'2024-01-02',is_hd:true,tags:['learning'],description:'A public lecture.',source_files:[{url:'https://example.com/original.mp4',label:'720p'}],comments:[{author:'Viewer',text:'Useful lesson.',date_raw:'Today'}],fetched_at:'2026-09-19T12:00:00Z'};
+const items=[base,{...base,id:'two',url:'https://example.com/video/2/demo',title:'Most viewed lecture',views:9876,rating:88,date_precision:'approximate',date_raw:'7 days ago',published_at:'2026-09-12T12:00:00Z'},...Array.from({length:25},(_,i)=>({...base,id:'f'+i,url:'https://example.com/video/'+(i+3)+'/demo',title:'Additional lecture '+i,views:i===0?null:10+i,is_hd:false}))];
+const c={id:'11111111-1111-4111-8111-111111111111',label:'Verified teaching collection',input:'https://example.com/profile/videos',items,item_count:27,pages:2,expected_count:27,coverage:'source count matched'};
+for(const viewport of [{width:1440,height:980},{width:390,height:844}]){
+ const context=await browser.newContext({viewport,acceptDownloads:true}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.route('https://cdn.example.com/**',r=>r.fulfill({contentType:'image/png',body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jfwsAAAAASUVORK5CYII=','base64')}));
+ await page.route('**/api/**',async route=>{const r=route.request(),path=new URL(r.url()).pathname;assert.ok(/^[a-zA-Z0-9_-]{24,100}$/.test(r.headers()['x-videoscope-workspace']));let value;if(path==='/api/config')value={version:'3.3.0'};else if(path==='/api/collections')value=[];else if(path.startsWith('/api/collections/'))value=c;else if(path==='/api/scans'){assert.equal(r.postDataJSON().url,'https://example.com/profile/videos');value={id:'job-1',collection_id:c.id,revision:0,status:'queued',stage:'listing',pages:0,items:0,expected:27,message:'Starting'}}else if(path.endsWith('/step'))value={id:'job-1',collection_id:c.id,revision:1,status:'complete',stage:'finished',pages:2,items:27,expected:27,message:'Collected 27 of 27 videos from 2 source pages.'};else if(path==='/api/import')value={...c,label:'Imported fixture'};else value={detail:'unknown'};await route.fulfill({json:value})});
+ await page.goto(address);assert.equal(await page.locator('#status').isVisible(),false);checks++;
+ await page.click('#themeButton');assert.equal(await page.locator('html').getAttribute('data-theme'),'light');checks++;
+ await page.reload();assert.equal(await page.locator('html').getAttribute('data-theme'),'light');checks++;
+ await page.fill('#sourceUrl',c.input);await page.click('#scanButton');await page.waitForFunction(()=>document.querySelector('#statVideos').textContent==='27');await page.waitForFunction(()=>!document.querySelector('#scanButton').disabled);assert.equal(await page.locator('.video-card').count(),24);checks++;
+ assert.equal(await page.locator('.card-title').first().textContent(),'Most viewed lecture');checks++;
+ assert.ok((await page.locator('#statCoverage').textContent()).includes('27'));checks++;
+ await page.click('#nextResults');assert.equal(await page.locator('.video-card').count(),3);checks++;await page.click('#prevResults');
+ await page.fill('#query','Original lecture');assert.equal(await page.locator('.video-card').count(),1);checks++;
+ await page.click('[data-detail="one"]');assert.ok(await page.locator('#detailDialog').isVisible());assert.ok((await page.locator('#detailContent').textContent()).includes('2024'));assert.equal(await page.locator('#detailContent a[href="https://example.com/original.mp4"]').count(),1);assert.ok((await page.locator('#detailContent').textContent()).includes('Useful lesson.'));checks+=3;await page.click('[data-close="detailDialog"]');
+ await page.click('[data-save="one"]');assert.equal(await page.locator('#savedCount').textContent(),'1');checks++;
+ await page.click(viewport.width<760?'#mobileSaved':'#navSaved');assert.equal(await page.locator('.video-card').count(),1);checks++;
+ await page.click('[data-save="one"]');assert.equal(await page.locator('.video-card').count(),0);checks++;
+ await page.click(viewport.width<760?'#mobileExplore':'#navExplore');await page.click('#resetFilters');await page.selectOption('#sort','published_asc');assert.equal(await page.locator('.video-card').count(),24);checks++;
+ await page.selectOption('#period','custom');await page.fill('#dateFrom','2024-01-01');await page.fill('#dateTo','2024-12-31');await page.waitForTimeout(50);assert.equal(await page.locator('#collectionTitle').textContent(),'26 of 27 videos');checks++;
+ await page.click('#resetFilters');await page.click('#advancedFilters summary');await page.fill('#minViews','8000');assert.equal(await page.locator('.video-card').count(),1);checks++;
+ await page.click('#resetFilters');await page.check('#hdOnly');assert.equal(await page.locator('.video-card').count(),2);checks++;
+ await page.uncheck('#blurPreviews');assert.equal(await page.locator('body').evaluate(e=>e.classList.contains('blurred')),false);checks++;
+ const dl=page.waitForEvent('download');await page.click('#tableButton');assert.equal((await dl).suggestedFilename(),'videoscope-table.csv');checks++;
+ await page.click('#toolsButton');await page.click('#importButton');assert.ok(await page.locator('#importDialog').isVisible());checks++;
+ await page.setInputFiles('#importFile',{name:'backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({items:[base]}))});await page.click('#importConfirm');await page.waitForFunction(()=>document.querySelector('#collectionSummary').textContent==='Imported fixture');checks++;
+ assert.deepEqual(errors,[]);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));checks+=2;
+ await page.click('#resetFilters');await page.screenshot({path:'artifacts/'+(viewport.width<760?'mobile':'desktop')+'-light.png',fullPage:true});await page.click('#themeButton');await page.screenshot({path:'artifacts/'+(viewport.width<760?'mobile':'desktop')+'-dark.png',fullPage:true});await context.close();
+}
+console.log('BROWSER_CHECKS_PASSED',checks);await browser.close();server.close();

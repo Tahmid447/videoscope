@@ -1,0 +1,29 @@
+name: Verify hosted scanner
+on:
+  push:
+    branches: [fix/verified-video-metadata]
+    paths: [scripts/hosted-check.mjs, .github/workflows/hosted-check.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  hosted:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Real hosted API and browser test
+        run: node scripts/hosted-check.mjs
+        env:
+          SITE_URL: https://deploy-preview-1--videoscope-3-tahmid.netlify.app
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hosted-verification
+          path: artifacts/
+          retention-days: 7
