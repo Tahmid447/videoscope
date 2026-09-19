@@ -1,0 +1,31 @@
+name: Audit public search order links
+on:
+  push:
+    branches: [test/search-public-order-coverage]
+    paths: [.github/workflows/public-order-audit.yml]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Inspect only published public listing links
+        run: |
+          node --input-type=module <<'NODE'
+          import {load} from 'cheerio';
+          import {readPublic,readRobots,allowedByRobots} from './lib/network.mjs';
+          const start='https://www.tokyomotion.net/search?search_query=%E3%82%A8%E3%82%B9%E3%83%86&search_type=videos';
+          const rules=await readRobots(start),base=new URL(start);
+          const first=await readPublic(start),$=load(first.html);
+          const orders=new Map();
+          $('a[href]').each((_,n)=>{const a=$(n),label=a.text().replace(/\s+/g,' ').trim();if(!/^(Most Viewed|Most Recent|Top Rated|Longest|Most Commented|Top Favorites|Public|All)$/i.test(label))return;try{const u=new URL(a.attr('href'),start);if(u.origin!==base.origin||u.pathname!==base.pathname||u.searchParams.get('search_query')!==base.searchParams.get('search_query')||u.searchParams.get('search_type')!=='videos')return;orders.set(label,u.href)}catch{}});
+          console.log('PUBLISHED_ORDERS',JSON.stringify([...orders].map(([label,url])=>({label,url}))));
+          async function report(url,label){if(!allowedByRobots(rules,url))return;try{const r=await readPublic(url),h=load(r.html),ids=new Set(h('a[href]').map((_,n)=>{try{return new URL(h(n).attr('href'),url).pathname.match(/^\/video\/(\d+)/)?.[1]}catch{return null}}).get().filter(Boolean)),text=h('body').text().replace(/\s+/g,' ');console.log('ORDER_PAGE',JSON.stringify({label,url,status:r.status,bytes:r.html.length,count:ids.size,range:text.match(/Showing\s+\d+\s+to\s+\d+\s+of\s+\d+\s+videos/i)?.[0]||null,firstIds:[...ids].slice(0,2),nextLinks:h('.pagination a[href]').map((_,n)=>h(n).attr('href')).get().slice(-3),noResults:/No Videos Found/i.test(text)}));}catch(e){console.log('ORDER_ERROR',JSON.stringify({label,url,message:e.message}))}await new Promise(r=>setTimeout(r,1600));}
+          for(const [label,url] of orders)if(/most viewed|most recent|top rated|longest|public/i.test(label)){await report(url,label+' page 1');const u=new URL(url);u.searchParams.set('page','18');await report(u.href,label+' page 18');}
+          for(const p of [50,51,55,57,58]){const u=new URL(start);u.searchParams.set('page',String(p));await report(u.href,'original page '+p)}
+          NODE
