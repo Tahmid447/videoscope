@@ -1,0 +1,17 @@
+name: Verify production VideoScope 3.4
+on:
+  push:
+    branches: [fix/archive-site-support-v34]
+    paths: [.github/workflows/production-34-check.yml, scripts/production-34-check.mjs]
+permissions:
+  contents: read
+jobs:
+  production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/production-34-check.mjs
