@@ -8,7 +8,7 @@ export function fromLegacy(v: Record<string, any>, provider: string): VideoRecor
   const sourceId = provider === 'tokyomotion' ? new URL(v.url).pathname.match(/^\/video\/(\d+)/)?.[1] || v.id : v.id;
   return record(provider, sourceId, v.url, {
     title: v.title, description: v.description || null, thumbnailUrl: v.thumbnail_url || null,
-    uploader: v.creator || null, publishedAt: v.published_at ? new Date(v.published_at).toISOString() : null,
+    uploader: v.creator || null, publishedAt: v.published_at || null,
     relativePublishedText: v.date_precision === 'approximate' ? v.date_raw : null, datePrecision: v.date_precision,
     views: v.views ?? null, likes: v.likes ?? null, dislikes: v.dislikes ?? null, comments: v.comments_count ?? null,
     rating: v.rating ?? null, ratingCount: v.rating_count ?? null, ratingScale: v.rating_best ?? null,
@@ -58,7 +58,7 @@ export function wordpressRecords(data: any[], base: string): VideoRecord[] {
       title: load(post.title.rendered).text(), description: $.text().trim() || null,
       thumbnailUrl: parseWordPressPostMeta(post, base)?.thumbnail_url || null,
       uploader: post._embedded?.author?.[0]?.name || null, uploaderId: post.author == null ? null : String(post.author),
-      publishedAt: post.date_gmt ? new Date(`${post.date_gmt.replace(/Z$/, '')}Z`).toISOString() : null,
+      publishedAt: post.date_gmt ? `${post.date_gmt.replace(/Z$/, '')}Z` : null,
       datePrecision: post.date_gmt ? 'timestamp' : 'unavailable', metadataSources: {listing: 'WordPress REST API'},
       categories: (post._embedded?.['wp:term'] || []).flat().map((term: {name?: string}) => term.name).filter(Boolean),
     })];

@@ -54,13 +54,19 @@ export interface ScanJob {
 }
 export const activeStates = ['queued', 'enumerating', 'enriching'];
 export const knownNumber = (v: unknown): number | null => (typeof v === 'number' || typeof v === 'string' && v.trim() !== '') && Number.isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : null;
+export function utcDate(value: unknown): string | null {
+  if (typeof value !== 'string' || !value.trim()) return null;
+  const time=Date.parse(value);
+  return Number.isFinite(time) ? new Date(time).toISOString() : null;
+}
 export function record(provider: string, sourceVideoId: string, url: string, values: Partial<VideoRecord> = {}): VideoRecord {
   return {
     id: `${provider}:${sourceVideoId}`, provider, sourceHost: new URL(url).hostname.replace(/^www\./, ''), sourceVideoId,
     canonicalUrl: url, title: '', description: null, thumbnailUrl: null, uploader: null, uploaderId: null, uploaderUrl: null,
-    publishedAt: null, relativePublishedText: null, datePrecision: 'unavailable', views: null, likes: null,
+    relativePublishedText: null, datePrecision: 'unavailable', views: null, likes: null,
     dislikes: null, comments: null, rating: null, ratingCount: null, ratingScale: null, durationSeconds: null,
     width: null, height: null, quality: null, isHD: null, tags: [], categories: [], availability: 'public metadata',
     downloadCapability: 'unavailable', metadataSources: {}, fetchedAt: new Date().toISOString(), enrichedAt: null, ...values,
+    publishedAt: utcDate(values.publishedAt),
   };
 }

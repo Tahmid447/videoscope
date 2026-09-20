@@ -1,5 +1,7 @@
 name: Controlled Cloudflare preview acceptance
 on:
+  push:
+    tags: ['videoscope-preview-check-*']
   workflow_dispatch:
     inputs:
       site_url:
@@ -21,7 +23,7 @@ jobs:
       - run: npm run check
       - name: Live source and persistence acceptance
         env:
-          SITE_URL: ${{ inputs.site_url }}
+          SITE_URL: ${{ inputs.site_url || vars.VIDEOSCOPE_PREVIEW_URL }}
         run: node scripts/hosted-v4.mjs
       - uses: actions/upload-artifact@v4
         if: always()

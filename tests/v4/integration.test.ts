@@ -32,7 +32,7 @@ test('1,146 records persist across 58 pages; reopening Store, pause/resume, dedu
     assert.ok((await query('q=physics')).items.every((x:any)=>x.uploader==='Physics Lab'));
     assert.equal((await query('q=Lesson%201145')).total,1);
     assert.ok((await query('from=2026-01-02&to=2026-01-03')).items.every((x:any)=>x.publishedAt>='2026-01-02'&&x.publishedAt<'2026-01-04'));
-    assert.equal((await query('sort=published_desc')).items[0].publishedAt,'2026-01-28T00:00:00Z');assert.equal((await query('sort=published_asc')).items[0].publishedAt,'2026-01-01T00:00:00Z');
+    assert.equal((await query('sort=published_desc')).items[0].publishedAt,'2026-01-28T00:00:00.000Z');assert.equal((await query('sort=published_asc')).items[0].publishedAt,'2026-01-01T00:00:00.000Z');
     await assert.rejects(store.query('another-owner',j.collectionId,new URLSearchParams()),/not found/);
   }finally{await mf.dispose();}
 });
@@ -128,5 +128,17 @@ test('repeated Worker termination becomes an explicit failure instead of an endl
   const initial=await start(store);await store.claim(initial.id);
   for(let i=0;i<4;i++){await db.prepare('UPDATE scan_jobs SET lease_until=0 WHERE id=?').bind(initial.id).run();await store.claim(initial.id);}
   const j=(await store.job(initial.id))!;assert.equal(j.status,'failed');assert.equal(j.errors[0].code,'worker_interrupted');assert.equal(j.pagesRead,0);assert.equal(j.nextCursor,null);
+ }finally{await mf.dispose();}
+});
+
+test('provider timestamps in different time zones share UTC SQL ordering and date boundaries',async()=>{
+ const {mf,db,store}=await database();try{
+  const dates=['2026-01-02T01:00:00+09:00','2026-01-01T23:00:00-05:00','not a date'];
+  const p:Provider={...base,enumerate:async()=>({items:dates.map((publishedAt,i)=>record('fixture',String(i),`https://fixture.example.com/video/${i}`,{title:String(i),publishedAt})),nextCursor:null,complete:true})};
+  const j=await start(store,p);await runStep(store,j.id,{}, {provider:p});await due(db);await runStep(store,j.id,{}, {provider:p});
+  const ordered=await store.query('owner',j.collectionId,new URLSearchParams('sort=published_asc'));
+  assert.deepEqual(ordered.items.map((v:any)=>v.publishedAt),['2026-01-01T16:00:00.000Z','2026-01-02T04:00:00.000Z',null]);
+  const day=await store.query('owner',j.collectionId,new URLSearchParams('from=2026-01-02&to=2026-01-02'));
+  assert.equal(day.total,1);assert.equal(day.items[0].id,'fixture:1');
  }finally{await mf.dispose();}
 });

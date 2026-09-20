@@ -45,6 +45,8 @@ hosted acceptance script uses actual providers without response injection.
 
 ## Architecture and release
 
+- [Recovery checkpoint and remaining work](docs/HANDOFF.md)
+- [Original project requirements](docs/PROJECT-BRIEF.md)
 - [Existing-project inventory](docs/ARCHITECTURE-INVENTORY.md)
 - [Provider contract, persistence and capabilities](docs/PROVIDER-ENGINE.md)
 - [Credentials, deployment, migration and rollback](docs/DEPLOYMENT-V4.md)

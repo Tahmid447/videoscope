@@ -23,7 +23,7 @@
     {
       "binding": "DB",
       "database_name": "videoscope-v4-production",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "af53cb04-e6f8-4b76-81e2-d873574c5eeb",
       "migrations_dir": "cloudflare/migrations"
     }
   ],

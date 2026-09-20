@@ -51,8 +51,8 @@ progress. Queues deliver one scan step at a time; a minute cron redelivers due
 jobs when delivery is interrupted. No R2 or container is required for metadata.
 
 `wrangler.jsonc` defines independent preview and production names/bindings.
-The preview D1 and queue are provisioned for this migration. Production database
-IDs must be replaced after provisioning and before the first production release.
+The preview and production D1 databases and queues are provisioned independently.
+The production database remains empty until the release gate passes.
 Never point preview at the production database.
 
 ```sh
@@ -63,7 +63,7 @@ npx wrangler d1 create videoscope-v4-production
 npx wrangler queues create videoscope-v4-scans
 ```
 
-The first two creation commands are already completed; do not create duplicates.
+All four creation commands are already completed; do not create duplicates.
 D1 IDs are resource identifiers, not credentials. Local OAuth authorization is
 stored by Wrangler in the macOS keychain/encrypted config. It is not a GitHub
 Actions credential. For CI deployment, configure a scoped Cloudflare API token in
@@ -96,8 +96,37 @@ SITE_URL=https://your-preview.workers.dev GITHUB_SHA=$(git rev-parse HEAD) node 
 ```
 
 The manual workflows become dispatchable after their definitions exist on the
-repository default branch. Before that, local preview commands and feature-branch
-CI are available. No automatic production workflow runs on pushes.
+repository default branch. Before that, push an explicit
+`videoscope-preview-check-<unique-name>` tag at the deployed feature commit to run
+the same controlled acceptance workflow. Set the repository variable
+`VIDEOSCOPE_PREVIEW_URL` to the preview URL first. This creates a real Actions
+acceptance run for the exact SHA without merging an unverified application into
+main. Ordinary feature commits do not start live scans or deployments.
+
+The hosted harness retains jobs and its device key under ignored `.wrangler/`,
+with mode 0600. Rerunning against the same build continues saved jobs. For a new
+build, choose another ignored `HOSTED_STATE_FILE`. Never upload that state file.
+Reports under `artifacts/` contain results without the workspace credential.
+Completed test collections are retained for inspection. Source-limited search
+coverage can pass only with exhausted pagination, no terminal errors/unresolved
+advertised pages, and an honest partial status. Other required sources must be
+complete. Selected-source CLI runs are diagnostic; release runs check all sources.
+
+When using local Wrangler OAuth for the first release, apply the same GitHub
+acceptance gate before a single production deployment. Set `ACCEPTANCE_RUN` to
+the successful controlled workflow's run ID:
+
+```sh
+GITHUB_REPOSITORY=Tahmid447/videoscope GITHUB_SHA=$(git rev-parse HEAD) ACCEPTANCE_RUN=YOUR_RUN_ID node scripts/release-gate.mjs
+# Continue only if the gate above succeeds.
+npx wrangler d1 migrations apply DB --remote --env ""
+npx wrangler deploy --env "" --var BUILD_SHA:$(git rev-parse HEAD)
+```
+
+The local command uses existing `gh` authentication; no Cloudflare token needs
+to be copied into GitHub for this route. The manual production workflow remains
+available once on main and its GitHub environment credentials are configured.
+No automatic production workflow runs on ordinary pushes or acceptance tags.
 
 ## Quotas and recovery
 

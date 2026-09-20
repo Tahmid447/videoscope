@@ -28,7 +28,7 @@
   },
   "scripts": {
     "build": "node scripts/build-v4.mjs",
-    "test": "npm run test:legacy && npm run test:providers && npm run test:integration",
+    "test": "npm run test:legacy && npm run test:providers && npm run test:integration && npm run test:acceptance",
     "test:live": "node scripts/live-check.mjs",
     "test:ui": "node scripts/ui-check.mjs",
     "build:legacy": "node scripts/verify-build.mjs",
@@ -42,6 +42,7 @@
     "dev": "npm run build && wrangler dev --env preview --test-scheduled",
     "db:local": "wrangler d1 migrations apply DB --local --env preview",
     "build:worker": "wrangler deploy --dry-run --env preview",
-    "check": "npm run lint && npm run typecheck && npm test && npm run test:e2e && npm run build && npm run build:worker"
+    "check": "npm run lint && npm run typecheck && npm test && npm run test:e2e && npm run build && npm run build:worker",
+    "test:acceptance": "node --test tests/hosted-v4.test.mjs"
   }
 }

@@ -15,6 +15,7 @@ checkpoint, not production sign-off.
 - Existing production / rollback: https://videoscope-3-tahmid.netlify.app
 - Original production base: `070a6ae9592b5fc788cf7ea3ea2f0fccce5b675f`.
 - No v4 production deployment, production D1 migration, or main merge occurred.
+  Empty production D1/Queue resources were prepared on continuation.
 
 The implementation is committed and pushed. Session interruption did not erase
 it. Preview D1 continued its backend scan after the local acceptance runner lost
@@ -79,12 +80,12 @@ metadata helpers in `lib/extract.mjs` are reused by v4. Read
    partial. Validate honest coverage; never lower totals or invent missing IDs.
 4. Inspect actual preview resource behavior. Resolve any failing required check
    before production. Optional Meta live tests need authorized credentials.
-5. Provision separate production D1/Queue only at the release stage; its database
-   ID in `wrangler.jsonc` is intentionally all zero. No paid plan was enabled.
-6. Manual workflow definitions must exist on the default branch before dispatch.
-   GitHub deployment also requires a scoped Cloudflare token in its environment;
-   local Wrangler OAuth is not a GitHub Actions credential. Preserve the manual,
-   exact-commit acceptance gate and avoid production-per-fix deployments.
+5. Separate production D1/Queue resources are now prepared but have no migrated
+   application schema or Worker deployment. No paid plan was enabled.
+6. Controlled `videoscope-preview-check-*` tags can run acceptance on the feature
+   branch before workflow_dispatch is available on main. Repository variable
+   `VIDEOSCOPE_PREVIEW_URL` is set. Production can then use local Wrangler OAuth
+   after the same exact-SHA GitHub acceptance gate; see DEPLOYMENT-V4.md.
 7. Produce the full final verification table, provider capability matrix, exact
    SHA, migration version, remaining configuration, URLs and limitations.
 
@@ -93,6 +94,8 @@ metadata helpers in `lib/extract.mjs` are reused by v4. Read
 - Cloudflare account: `e8f1eea5d1c73f3cbc307d71f0a98ca9`.
 - Preview D1: `videoscope-v4-preview`, ID
   `6c0eb4da-2a3a-4b85-93d4-996b3a397e83`.
+- Production D1 (empty): `videoscope-v4-production`, ID
+  `af53cb04-e6f8-4b76-81e2-d873574c5eeb`; Queue `videoscope-v4-scans`.
 - Preview Queue: `videoscope-v4-preview-scans`; one message and consumer at a time.
 - Migration: `0001_provider_engine.sql`.
 - Worker: `videoscope-v4-preview`, minute recovery cron.
@@ -146,3 +149,18 @@ commits do not automatically change the running Worker.
 Continue the original rebuild from its existing branch. Do not rebuild a second
 application or merge the unfinished media branch just to enable a button. Keep
 Netlify available. Deploy production only after every required gate passes.
+
+## Continuation changes after the checkpoint
+
+- Hosted acceptance now retries transient reads, reconciles ambiguous creates,
+  persists its workspace/job references privately, and retains collections.
+- Two regression tests cover DNS/body interruptions, retry delays, non-replayed
+  creates, and strict validation of honest partial search coverage.
+- Record timestamps normalize to UTC before SQL storage; invalid dates remain
+  null. A real D1 test checks ordering and date ranges across opposite time zones.
+- Full local checks now pass 51 legacy/core, 16 provider/network, 11 integration,
+  two acceptance-helper and five browser tests, plus lint/types/build/dry-run.
+- Recovered hosted profile and search passed extended views/date/duration sorts,
+  numeric/date ranges, title/uploader search, and all four browser viewports.
+- Hosted archive has collected 109 records; detail enrichment is in progress.
+- Original project requirements are preserved in PROJECT-BRIEF.md.
