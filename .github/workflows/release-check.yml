@@ -1,8 +1,6 @@
 name: Verify production release
 on:
-  push:
-    branches: [main]
-    paths: ['static/**', 'lib/**', 'netlify/**', '.github/workflows/release-check.yml']
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
