@@ -1,0 +1,29 @@
+name: Provider capability diagnostic
+on:
+  push:
+    branches: [fix/providers-and-downloads-v4]
+    paths: [.github/workflows/provider-diagnostic.yml]
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: python -m pip install 'yt-dlp[default]'
+      - name: Read public channel metadata without downloading videos
+        run: |
+          python - <<'PY'
+          import json,yt_dlp
+          from yt_dlp.version import __version__
+          print('EXTRACTOR_VERSION',__version__)
+          opts={'quiet':True,'skip_download':True,'extract_flat':'in_playlist','playlistend':3,'socket_timeout':15,'retries':1,'extractor_retries':1,'extractor_args':{'youtubetab':{'approximate_date':['true']}}}
+          with yt_dlp.YoutubeDL(opts) as y:
+              d=y.extract_info('https://www.youtube.com/@FilmiIndian/videos',download=False)
+              rows=[{k:e.get(k) for k in ('id','title','view_count','duration','timestamp','upload_date','channel')} for e in (d.get('entries') or []) if e]
+              print('PUBLIC_CHANNEL_DIAGNOSTIC',json.dumps({'provider':d.get('extractor_key'),'title':d.get('title'),'sample_count':len(rows),'records':rows},ensure_ascii=True))
+              assert len(rows)==3
+          PY
