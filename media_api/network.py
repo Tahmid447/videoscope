@@ -58,7 +58,8 @@ class SafeHTTP:
         try:
             for _ in range(6):
                 assert self.session is not None
-                response = await self.session.get(target, headers=headers, allow_redirects=False)
+                selected = {**getattr(self, "headers_by_host", {}).get(urlsplit(target).hostname, {}), **headers}
+                response = await self.session.get(target, headers=selected, allow_redirects=False)
                 if response.status in (301, 302, 303, 307, 308):
                     location = response.headers.get("Location")
                     response.close()

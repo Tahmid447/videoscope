@@ -92,7 +92,7 @@ async def media_formats(http, url, settings, referer=None):
     return found
 
 
-async def analyze(http, url, owner, ident, settings):
+async def analyze_generic(http, url, owner, ident, settings):
     url = public_url(url,settings.allowed_hosts)
     prefix, final, headers = await http.inspect(url)
     if signature(prefix) or prefix.lstrip().startswith(b'#EXTM3U') or b'<MPD' in prefix[:4096]:
@@ -149,3 +149,16 @@ async def analyze(http, url, owner, ident, settings):
     return Analysis(ident,owner,url,str(title)[:600],formats[:32],http,thumbnail=thumb,
                     duration=dash.duration(schema.get('duration')) or None, uploader=author.get('name') if isinstance(author,dict) else str(author),
                     upload_date=schema.get('uploadDate') or page.meta.get('article:published_time'),views=views,warnings=list(dict.fromkeys(warnings)))
+
+
+async def analyze(http, url, owner, ident, settings):
+    from .bridge import provider_name, analyze_provider
+    url = public_url(url, settings.allowed_hosts)
+    if provider_name(url):
+        return await analyze_provider(http, url, owner, ident, settings)
+    try:
+        return await analyze_generic(http, url, owner, ident, settings)
+    except MediaError as exc:
+        if exc.code != 'no_stream':
+            raise
+        return await analyze_provider(http, url, owner, ident, settings)

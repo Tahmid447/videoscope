@@ -58,6 +58,9 @@ async def probe(path, settings):
 
 
 async def prepare(analysis, fmt, directory, settings, progress):
+    if fmt.stream_type == "extracted":
+        from .transfers import prepare_extracted
+        return await prepare_extracted(analysis, fmt, directory, settings, progress)
     http, plan = analysis.http, fmt.plan
     referer = plan.get('referer') or analysis.url
     result = directory / ('video.'+fmt.extension)

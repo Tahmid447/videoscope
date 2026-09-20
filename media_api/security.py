@@ -35,6 +35,8 @@ def public_ip(value: str) -> bool:
 
 
 def public_url(raw: str, hosts: tuple[str, ...] = ()) -> str:
+    if not isinstance(raw, str):
+        raise MediaError("invalid_url", "Enter a complete HTTP or HTTPS video address.")
     if len(raw) > 4096 or any(ord(c) < 33 for c in raw) or "\\" in raw:
         raise MediaError("invalid_url", "Enter a complete HTTP or HTTPS video address.")
     try:

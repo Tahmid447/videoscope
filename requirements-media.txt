@@ -1,0 +1,5 @@
+fastapi>=0.115.12,<1
+uvicorn[standard]>=0.34.2,<1
+aiohttp>=3.12.14,<4
+defusedxml==0.7.1
+yt-dlp[default]==2026.8.19
