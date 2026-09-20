@@ -1,0 +1,11 @@
+{
+  "observedAt": "2026-09-20T14:46:12.916Z",
+  "worker": "videoscope-v4-preview",
+  "sourceSha": "1c888442a2d1b6baf7129de6db699a764f15cb12",
+  "message": "D1_ERROR: Your account has exceeded D1's free tier daily row write limit. Upgrade to a paid plan or wait until tomorrow (midnight UTC) to continue. See https://developers.cloudflare.com/d1/platform/limits/ for more details.",
+  "activeScanId": "d8a2b774-5d04-4574-8cf3-3d6bfd5fcce6",
+  "records": 1141,
+  "pages": 237,
+  "plannedFreeReset": "2026-09-21T00:00:00Z",
+  "productionDeployed": false
+}

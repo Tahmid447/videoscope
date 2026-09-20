@@ -24,6 +24,7 @@ jobs:
       - name: Live source and persistence acceptance
         env:
           SITE_URL: ${{ inputs.site_url || vars.VIDEOSCOPE_PREVIEW_URL }}
+          HOSTED_WORKSPACE: ${{ secrets.VIDEOSCOPE_ACCEPTANCE_WORKSPACE }}
         run: node scripts/hosted-v4.mjs
       - uses: actions/upload-artifact@v4
         if: always()

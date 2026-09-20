@@ -5,6 +5,7 @@ for(const width of [1440,375,390,430])test(`full collection workflow at ${width}
  await expect(page.locator('#pauseButton')).toBeVisible();await page.click('#pauseButton');await expect(page.locator('#resumeButton')).toBeVisible();
  await page.reload();await expect(page.locator('#resumeButton')).toBeVisible();await page.click('#resumeButton');
  await expect(page.locator('#statusTitle')).toContainText('Complete',{timeout:30000});await expect(page.locator('#statVideos')).toHaveText('60');await expect(page.locator('.video-card')).toHaveCount(24);
+ expect(Number((await page.locator('#statViews').textContent())!.replaceAll(',',''))).toBeGreaterThan(2_000_000_000);
  await expect(page.locator('.card-title').first()).toHaveText('Synthetic lesson 59');
  await page.click('#nextResults');await expect(page.locator('.card-title').first()).toHaveText('Synthetic lesson 35');
  await page.selectOption('#sort','views_asc');await expect(page.locator('.card-title').first()).toHaveText('Synthetic lesson 1');

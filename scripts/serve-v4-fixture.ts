@@ -8,7 +8,7 @@ import {runStep} from '../engine/runner.ts';
 import {record,type Provider} from '../engine/model.ts';
 const {db,store,mf}=await database();
 const fixture:Provider={...generic,enrich:async(items,ctx)=>items.map(v=>({...v,enrichedAt:ctx.now})),capabilities:env=>({...generic.capabilities(env),delayMs:0,enrichmentBatch:20}),enumerate:async(_s,c)=>{
- const page=Number(c||0),items=Array.from({length:20},(_,i)=>{const n=page*20+i;return record('generic','fixture'+String(n).padStart(3,'0'),`https://example.com/video/${n}`,{title:`Synthetic lesson ${n}`,uploader:n%2?'Teaching Lab':'Physics Lab',views:n===0?null:n===1?0:n*100,likes:n,comments:n*2,durationSeconds:n*60,publishedAt:`2026-01-${String(n%28+1).padStart(2,'0')}T00:00:00Z`,description:'Explicitly synthetic browser fixture',tags:['learning'],thumbnailUrl:null});});
+ const page=Number(c||0),items=Array.from({length:20},(_,i)=>{const n=page*20+i;return record('generic','fixture'+String(n).padStart(3,'0'),`https://example.com/video/${n}`,{title:`Synthetic lesson ${n}`,uploader:n%2?'Teaching Lab':'Physics Lab',views:n===0?null:n===1?0:n===59?2_689_653_688:n*100,likes:n,comments:n*2,durationSeconds:n*60,publishedAt:`2026-01-${String(n%28+1).padStart(2,'0')}T00:00:00Z`,description:'Explicitly synthetic browser fixture',tags:['learning'],thumbnailUrl:null});});
  return {items,nextCursor:page<2?page+1:null,complete:page===2,expectedCount:60,label:'Synthetic browser collection'};
 }};
 const server=createServer(async(req,res)=>{

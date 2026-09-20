@@ -120,7 +120,7 @@ the successful controlled workflow's run ID:
 GITHUB_REPOSITORY=Tahmid447/videoscope GITHUB_SHA=$(git rev-parse HEAD) ACCEPTANCE_RUN=YOUR_RUN_ID node scripts/release-gate.mjs
 # Continue only if the gate above succeeds.
 npx wrangler d1 migrations apply DB --remote --env ""
-npx wrangler deploy --env "" --var BUILD_SHA:$(git rev-parse HEAD)
+npx wrangler deploy --env "" --var BUILD_SHA:$(git rev-parse HEAD) --secrets-file .dev.vars
 ```
 
 The local command uses existing `gh` authentication; no Cloudflare token needs
@@ -164,3 +164,7 @@ delete Cloudflare D1 while diagnosing; pause affected scans. For a Worker-only
 rollback use `wrangler rollback` to a verified previous version. D1 restore/time
 travel is a separate, deliberate data recovery action, not an automatic part of
 code rollback. This release adds a fresh schema and does not modify Netlify data.
+
+## Acceptance continuation after infrastructure limits
+
+`VIDEOSCOPE_ACCEPTANCE_WORKSPACE` is an encrypted repository secret containing only the controlled preview test workspace key. The workflow passes it as `HOSTED_WORKSPACE` so a fresh runner reconciles existing collections and resumes saved jobs. Never print or upload this key. On September 20 the free D1 write quota was exhausted; the user chose the next free reset. Read HANDOFF.md before launching another run.

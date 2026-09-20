@@ -13,7 +13,8 @@ const stateFile=process.env.HOSTED_STATE_FILE || '.wrangler/hosted-v4-state.json
 let state;
 try {state=JSON.parse(await readFile(stateFile,'utf8'));}catch(e){if(e.code!=='ENOENT')throw e;}
 if(state){assert.equal(state.site,site,'Use another HOSTED_STATE_FILE for a different preview');assert.equal(state.commit,commit,'Use a fresh HOSTED_STATE_FILE for a new build');}
-else state={site,commit,workspace:randomBytes(24).toString('hex'),jobs:{},results:{}};
+else state={site,commit,workspace:process.env.HOSTED_WORKSPACE || randomBytes(24).toString('hex'),jobs:{},results:{}};
+if(!/^[a-zA-Z0-9_-]{24,100}$/.test(state.workspace))throw new Error('Invalid acceptance workspace credential');
 const api=client(site,state.workspace),config=await api('config');
 assert.equal(config.backendOwnedScans,true);assert.equal(config.buildSha,commit,'Preview must run the exact acceptance commit');
 const sources=[['youtube','https://www.youtube.com/@FilmiIndian/videos'],['tokyomotion-profile','https://www.tokyomotion.net/user/yua_xx/videos'],['tokyomotion-search','https://www.tokyomotion.net/search?search_query=%E3%82%A8%E3%82%B9%E3%83%86&search_type=videos'],['wordpress-archive','https://internetchicks.com/actress/lillian-phillips/']];

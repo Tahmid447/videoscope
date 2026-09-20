@@ -1,0 +1,10 @@
+{
+  "file": "videoscope-preview-recovery-final.sql",
+  "restoredToTemporarySQLite": true,
+  "counts": {
+    "videos": 3797,
+    "collections": 6,
+    "scan_jobs": 6,
+    "scan_checkpoints": 559
+  }
+}

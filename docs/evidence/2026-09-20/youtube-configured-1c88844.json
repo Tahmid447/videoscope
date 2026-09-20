@@ -1,0 +1,26 @@
+{
+  "name": "youtube",
+  "url": "https://www.youtube.com/@FilmiIndian/videos",
+  "status": "complete",
+  "expected": 2473,
+  "unique": 2473,
+  "pages": 50,
+  "requests": 101,
+  "coverage": {
+    "title": 2473,
+    "thumbnailUrl": 2473,
+    "views": 2473,
+    "likes": 2456,
+    "comments": 2403,
+    "rating": 0,
+    "publishedAt": 2473,
+    "durationSeconds": 2472,
+    "totalViews": 2689645576
+  },
+  "cursorPages": {
+    "default": 1
+  },
+  "errors": [],
+  "warnings": [],
+  "elapsedSeconds": 68.359
+}
