@@ -2,9 +2,9 @@ name: VideoScope media and provider preflight
 on:
   push:
     branches: [fix/providers-and-downloads-v4]
-    paths-ignore: ['scripts/v4-bundle/**', '.github/workflows/provider-diagnostic.yml']
+    paths-ignore: ['.github/workflows/provider-diagnostic.yml']
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: videoscope-v4-preflight
   cancel-in-progress: true
@@ -20,38 +20,14 @@ jobs:
         with: {node-version: '22'}
       - uses: denoland/setup-deno@v2
         with: {deno-version: 'v2.x'}
-      - name: Materialize checksum-verified readable source
-        run: |
-          if [ -d scripts/v4-bundle ]; then
-            python - <<'PY'
-          import base64,gzip,json,hashlib,pathlib,shutil
-          p=pathlib.Path('scripts/v4-bundle')
-          b=''.join(x.read_text().strip() for x in sorted(p.glob('part-*.txt')))
-          b=b.replace('MIeCrZbMWw','MIeCrZMWw').replace('EnrXJJ/y','EnrXJ/y')
-          raw=gzip.decompress(base64.b64decode(b,validate=True))
-          assert hashlib.sha256(raw).hexdigest()=='ac62d0fc2fe690d0d6e852e7a474f62ecd4c67b8d0360414fc14a6d82bcda629','Source transport checksum mismatch'
-          files=json.loads(raw)
-          for name,text in files.items():
-              path=pathlib.Path(name)
-              assert not path.is_absolute() and '..' not in path.parts and '.github' not in path.parts
-              path.parent.mkdir(parents=True,exist_ok=True)
-              path.write_text(text)
-          shutil.rmtree(p)
-          print('Verified and materialized',len(files),'readable source files')
-          PY
-          fi
-          node scripts/integrate-v4.mjs
-          git add media_api netlify/functions static scripts tests_media requirements-media.txt Dockerfile.media railway.toml .env.media.example README-MEDIA.md lib/extract.mjs package.json
-          if ! git diff --cached --quiet; then
-            git -c user.name='VideoScope build' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Materialize provider service, real attachment downloads, and regression tests'
-            git push origin HEAD:fix/providers-and-downloads-v4
-          fi
-          git rev-parse HEAD
       - name: Install dependencies
         run: |
-          npm install --ignore-scripts --no-audit --no-fund
-          npm install --no-save --ignore-scripts typescript @types/node
-          python -m pip install -r requirements-media.txt pytest httpx ruff
+          mkdir -p artifacts-v4
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg > artifacts-v4/system-install.log 2>&1 || { tail -n 30 artifacts-v4/system-install.log; exit 1; }
+          npm install --ignore-scripts --no-audit --no-fund > artifacts-v4/npm-install.log 2>&1 || { tail -n 30 artifacts-v4/npm-install.log; exit 1; }
+          npm install --no-save --ignore-scripts typescript @types/node >> artifacts-v4/npm-install.log 2>&1
+          python -m pip install -q -r requirements-media.txt pytest httpx ruff
           ffmpeg -version | head -n 1
       - name: Build, syntax, lint, and type checks
         run: |
@@ -59,7 +35,7 @@ jobs:
           npm test
           python -m compileall -q media_api tests_media
           ruff check --select E9,F63,F7,F82 media_api tests_media
-          npx tsc --noEmit --allowJs --skipLibCheck --module nodenext --moduleResolution nodenext --target es2022 netlify/functions/api.mts
+          npx tsc --noEmit --allowImportingTsExtensions --allowJs --skipLibCheck --module nodenext --moduleResolution nodenext --target es2022 netlify/functions/api.mts
           npx esbuild netlify/functions/api.mts --bundle --platform=node --format=esm --packages=external --outfile=/tmp/api.mjs
           node --check static/app.js
           node --check static/media.js
@@ -67,12 +43,12 @@ jobs:
         run: python -m pytest tests_media/test_pipeline.py -v --junitxml=artifacts-v4/media-tests.xml
       - name: Real browser attachment and playback tests
         run: |
-          npx playwright install --with-deps chromium webkit firefox
+          npx playwright install --with-deps chromium webkit firefox > artifacts-v4/browser-install.log 2>&1 || { tail -n 40 artifacts-v4/browser-install.log; exit 1; }
           node scripts/media-browser-check.mjs
       - name: Guarded YouTube provider test on the reported channel
         run: PYTHONPATH=. python scripts/provider-preflight.py
       - name: Validate production container
-        run: docker build -f Dockerfile.media -t videoscope-media-preflight .
+        run: docker build -f Dockerfile.media -t videoscope-media-preflight . > artifacts-v4/docker-build.log 2>&1 || { tail -n 50 artifacts-v4/docker-build.log; exit 1; }
       - uses: actions/upload-artifact@v4
         if: always()
         with:
