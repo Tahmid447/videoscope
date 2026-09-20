@@ -3,6 +3,10 @@ node_modules/
 .env
 .env.*
 !.env.example
+!.env.media.example
 __pycache__/
 artifacts/
+artifacts-v4/
+.pytest_cache/
+.ruff_cache/
 *.log
