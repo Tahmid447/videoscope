@@ -68,6 +68,8 @@ Meta reference: https://www.postman.com/meta/instagram/folder/u4g5a2a/instagram-
 
 ## Latest recovery checkpoint
 
-The large total-views statistic caused 6px overflow at 375px. The correction and a multi-billion-view fixture passed all five browser tests at 1440/375/390/430. It is not yet deployed to preview. The CI workspace is now persisted in an encrypted GitHub secret so the next run can reuse saved collections. Final hosted approval remains required.
+The large total-views statistic caused 6px overflow at 375px. The correction and a multi-billion-view fixture passed all five browser tests at 1440/375/390/430. It is deployed to preview at `a0f2e902339d015d3d2205b2ec98a303898526d9`; the actual saved YouTube collection passes a read-only 375px overflow check. The CI workspace is now persisted in an encrypted GitHub secret so the next run can reuse saved collections. Final hosted approval remains required.
 
 The latest SQL backup restored successfully with 3,797 video rows, six collections, six jobs and 559 checkpoints. The user chose the free reset; a one-time desktop continuation is scheduled for September 21 at 09:05 Japan time.
+
+Latest preview: `a0f2e902339d015d3d2205b2ec98a303898526d9`, Worker version `17fe949b-bf4c-447d-ac73-9e02da65a4c2`. Deterministic CI passed and the real YouTube 375px overflow regression passed. No production deployment.

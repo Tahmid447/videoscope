@@ -13,9 +13,9 @@ Codex task for 09:05 Japan time; the computer and app must be running.
 - Checkout: `/Users/tahmidahmed/Documents/Codex/2026-09-20/files-pasted-by-the-user-you/work/videoscope`.
 - Latest source is this branch's HEAD. It includes the narrow-screen large-number
   fix and persistent CI workspace setup described below. Inspect `git status`.
-- Preview currently runs **`1c888442a2d1b6baf7129de6db699a764f15cb12`**:
+- Preview currently runs **`a0f2e902339d015d3d2205b2ec98a303898526d9`**:
   https://videoscope-v4-preview.tahmidhc245.workers.dev
-- Preview Worker version: `e0ac0b38-e066-4e71-8d34-5adb0030359b`.
+- Preview Worker version: `17fe949b-bf4c-447d-ac73-9e02da65a4c2`.
 - Existing production/rollback: https://videoscope-3-tahmid.netlify.app
 - **No v4 production Worker deployment, production migration, or main merge.**
 
@@ -34,7 +34,9 @@ The report also caught 6px horizontal overflow at 375px: YouTube's total views
 were 2,689,653,688. This branch fixes the stat typography and wraps very large
 values. The existing browser fixture now includes a multi-billion view count;
 all five browser tests passed after the fix at 1440/375/390/430. This corrected
-CSS is not yet deployed to preview. Do not claim hosted YouTube UI has passed.
+CSS is now deployed to preview. A read-only check of the actual saved YouTube
+collection at 375px passed with 2,689,653,688 total views. Full hosted acceptance
+remains pending; the targeted correction check does not replace it.
 
 ## Saved cloud work: reuse it
 
@@ -62,22 +64,21 @@ The older search job `c654ded4-8e5c-4ba4-9a0c-f16b40d57918` completed partial
 
 ## Next steps after reset
 
-1. Check current branch CI once. Previous `1c88844` deterministic CI passed all
-   85 tests plus lint/types/build/migration. The local fix passed all five browser
-   tests. Do not repeat unrelated local checks; let normal CI validate the new HEAD.
-2. With a clean worktree and passing CI, build assets (`npm run build`) and deploy
-   **preview only** with `npx wrangler deploy --env preview --var BUILD_SHA:$(git rev-parse HEAD)`.
-   Run Wrangler commands sequentially: parallel OAuth refresh caused a transient
-   auth error previously. YouTube secret is already configured on preview.
-3. Verify `/api/config` matches HEAD. Push an explicit unique
-   `videoscope-preview-check-*` tag at that exact SHA. The workflow now uses the
-   saved encrypted workspace secret and continues existing cloud collections.
+1. Use pinned release source **`a0f2e902339d015d3d2205b2ec98a303898526d9`**.
+   Its deterministic CI passed: https://github.com/Tahmid447/videoscope/actions/runs/35517983330.
+   Preview already runs this exact source with the mobile fix. Later documentation
+   commits do not require another preview deployment or repeated deterministic tests.
+2. Verify `/api/config` still matches this pinned release source. Do not deploy
+   again if it already matches. The preview YouTube secret is configured.
+3. Push one explicit unique `videoscope-preview-check-*` tag at the **pinned
+   release source above**, not a newer documentation-only HEAD. The workflow uses
+   the saved encrypted workspace secret and continues existing collections.
    Repo variable `VIDEOSCOPE_PREVIEW_URL` is already set. Watch the actual run.
 4. Allow remaining search and archive checks to finish. Download the final
    `cloudflare-preview-acceptance` artifact. All four rows must pass and
    `allRequiredPassed` must be true. Fix actual failures; never weaken gates.
 5. Run `scripts/release-gate.mjs` with `GITHUB_REPOSITORY=Tahmid447/videoscope`,
-   `GITHUB_SHA` equal to the deployed/tested HEAD, and `ACCEPTANCE_RUN` equal to
+   `GITHUB_SHA` equal to the pinned deployed/tested source, and `ACCEPTANCE_RUN` equal to
    the successful new run ID. The cancelled run cannot authorize production.
 6. Only after that exact-SHA gate, migrate production and deploy once:
    `npx wrangler d1 migrations apply DB --remote --env ''`, then
