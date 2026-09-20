@@ -1,0 +1,26 @@
+{
+  "name": "wordpress-archive",
+  "url": "https://internetchicks.com/actress/lillian-phillips/",
+  "status": "complete",
+  "expected": null,
+  "unique": 109,
+  "pages": 12,
+  "requests": 243,
+  "coverage": {
+    "title": 109,
+    "thumbnailUrl": 109,
+    "views": 0,
+    "likes": 0,
+    "comments": 0,
+    "rating": 0,
+    "publishedAt": 109,
+    "durationSeconds": 0,
+    "totalViews": null
+  },
+  "cursorPages": {
+    "default": 12
+  },
+  "errors": [],
+  "warnings": [],
+  "elapsedSeconds": 274.312
+}

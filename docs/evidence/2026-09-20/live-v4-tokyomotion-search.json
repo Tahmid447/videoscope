@@ -1,0 +1,32 @@
+{
+  "name": "tokyomotion-search",
+  "url": "https://www.tokyomotion.net/search?search_query=%E3%82%A8%E3%82%B9%E3%83%86&search_type=videos",
+  "status": "partial",
+  "expected": 1150,
+  "unique": 1144,
+  "pages": 250,
+  "requests": 251,
+  "coverage": {
+    "title": 1144,
+    "thumbnailUrl": 1144,
+    "views": 1144,
+    "likes": 0,
+    "comments": 0,
+    "rating": 1108,
+    "publishedAt": 1144,
+    "durationSeconds": 1144,
+    "totalViews": 38203667
+  },
+  "cursorPages": {
+    "default": 50,
+    "mv": 50,
+    "md": 50,
+    "tr": 50,
+    "tf": 50
+  },
+  "errors": [],
+  "warnings": [
+    "1144 / 1150 reported items publicly reached. Partial coverage."
+  ],
+  "elapsedSeconds": 359.424
+}

@@ -1,0 +1,27 @@
+{
+  "id": "c654ded4-8e5c-4ba4-9a0c-f16b40d57918",
+  "status": "partial",
+  "phase": "enriching",
+  "expectedCount": 1150,
+  "uniqueItemsCollected": 1145,
+  "pagesRead": 252,
+  "requestsMade": 267,
+  "metadataCoverage": {
+    "title": 1145,
+    "thumbnailUrl": 1145,
+    "views": 1145,
+    "likes": 0,
+    "comments": 0,
+    "rating": 1109,
+    "publishedAt": 1145,
+    "durationSeconds": 1145,
+    "totalViews": 38207667
+  },
+  "nextCursor": null,
+  "warnings": [
+    "Retrying saved cursor after empty_intermediate_page.",
+    "1145 / 1150 reported items publicly reached. Partial coverage."
+  ],
+  "errors": [],
+  "finishedAt": "2026-09-20T13:36:32.987Z"
+}

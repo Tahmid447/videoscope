@@ -1,0 +1,30 @@
+{
+  "site": "https://videoscope-v4-preview.tahmidhc245.workers.dev",
+  "version": "4.0.0-preview",
+  "report": [
+    {
+      "name": "youtube",
+      "status": "blocked",
+      "message": "YOUTUBE_API_KEY is not configured; production acceptance is blocked."
+    },
+    {
+      "name": "tokyomotion-profile",
+      "status": "pass",
+      "collected": 72,
+      "expected": 72,
+      "pages": 4,
+      "coverage": {
+        "title": 72,
+        "thumbnailUrl": 72,
+        "views": 72,
+        "likes": 0,
+        "comments": 0,
+        "rating": 72,
+        "publishedAt": 72,
+        "durationSeconds": 72,
+        "totalViews": 4061608
+      }
+    }
+  ],
+  "commit": "024d9eaa2cf06163593a272c9679be731cf68c82"
+}
