@@ -1,5 +1,13 @@
 # VideoScope continuation checkpoint
 
+## Active release run — September 21 (supersedes the older checkpoint below)
+
+Release source is `ceafbc3a93b6ce0eeb7d39c723c3177e7d4c79b5`, currently deployed to preview as Worker version `3ae5d9bc-a530-4817-98c0-e1530040e388`.
+The pause/claim race is fixed using an atomic UPDATE RETURNING snapshot and a fenced provider lock; a deterministic D1 regression passes.
+Public direct MP4 attachment downloads up to 16 MB are implemented; platform page/HLS/DASH downloads remain unavailable without the separate media service.
+The required exact-source acceptance run is https://github.com/Tahmid447/videoscope/actions/runs/35567210650. Its deterministic checks passed; live archive enrichment and download/playback verification are still running. Search is retained at 1,147/1,150 over 267 pages, honestly partial with no terminal errors. Do not restart scans.
+Use that run only if its final conclusion is success and both cloudflare-acceptance.json and download-acceptance.json pass. Then release the pinned source above; later documentation-only commits do not require redeploying preview. Production is not deployed yet. The user still requires the free plan and no unnecessary repeated checks.
+
 Updated 2026-09-20 UTC. **Not production sign-off.** The user chose to wait for
 Cloudflare's free daily D1 quota reset, not upgrade. Continue after **2026-09-21
 00:00 UTC / 09:00 Japan time**. A one-time continuation is scheduled in the current
