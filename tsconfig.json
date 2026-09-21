@@ -1,0 +1,1 @@
+{"compilerOptions":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","lib":["ES2022","DOM","DOM.Iterable"],"types":["@cloudflare/workers-types","node"],"strict":true,"allowJs":true,"checkJs":false,"allowImportingTsExtensions":true,"skipLibCheck":true,"noEmit":true,"esModuleInterop":true},"include":["engine/**/*.ts","cloudflare/**/*.ts","tests/v4/**/*.ts"]}

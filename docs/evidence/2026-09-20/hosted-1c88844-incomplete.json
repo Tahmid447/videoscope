@@ -1,0 +1,62 @@
+{
+  "site": "https://videoscope-v4-preview.tahmidhc245.workers.dev",
+  "version": "4.0.0-preview",
+  "commit": "1c888442a2d1b6baf7129de6db699a764f15cb12",
+  "allRequiredPassed": false,
+  "report": [
+    {
+      "name": "youtube",
+      "status": "fail",
+      "message": "The expression evaluated to a falsy value:\n\n  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth))\n",
+      "scanId": "cf21b0d5-b54b-4496-814c-c5d8d329f40f"
+    },
+    {
+      "name": "tokyomotion-profile",
+      "status": "pass",
+      "collectionStatus": "complete",
+      "collected": 72,
+      "expected": 72,
+      "pages": 4,
+      "requests": 5,
+      "warnings": [],
+      "coverage": {
+        "title": 72,
+        "thumbnailUrl": 72,
+        "views": 72,
+        "likes": 0,
+        "comments": 0,
+        "rating": 72,
+        "publishedAt": 72,
+        "durationSeconds": 72,
+        "totalViews": 4061608
+      },
+      "filters": [
+        "views_asc",
+        "views_desc",
+        "published_asc",
+        "published_desc",
+        "duration_asc",
+        "duration_desc",
+        "min/max Views",
+        "min/max Duration",
+        "date range",
+        "title search",
+        "uploader search"
+      ],
+      "viewports": [
+        1440,
+        375,
+        390,
+        430
+      ]
+    },
+    {
+      "name": "tokyomotion-search",
+      "status": "pending"
+    },
+    {
+      "name": "wordpress-archive",
+      "status": "pending"
+    }
+  ]
+}

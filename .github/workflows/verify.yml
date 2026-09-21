@@ -1,32 +1,32 @@
-name: Verify VideoScope
+name: Verify VideoScope v4
 on:
   push:
-    branches: [fix/verified-video-metadata, main]
-    paths-ignore: ['README.md', 'docs/**', '.github/workflows/source-diagnostic.yml', 'scripts/detail-diagnostic.mjs']
+    branches: [codex/videoscope-provider-engine-v4]
   pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - run: npm install --no-audit --no-fund
-      - run: npm run build && npm test
-      - run: npx esbuild netlify/functions/api.mts --bundle --platform=node --format=esm --packages=external --outfile=/tmp/api.mjs
-      - name: Compare real source pages against parser
-        run: npm run test:live
-      - name: Browser interactions
-        run: |
-          npx playwright install --with-deps chromium
-          npm run test:ui
+        with: {node-version: '22', cache: npm}
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: npm run check
+      - run: npm run db:local
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: browser-checks
-          path: artifacts/
+          name: v4-verification
+          path: |
+            artifacts/
+            playwright-report/
+            test-results/
           retention-days: 7

@@ -1,6 +1,8 @@
 [build]
+  # Freeze automated builds during the Cloudflare migration; deployed v3 remains the rollback.
+  ignore = "exit 0"
   publish = "static"
-  command = "npm run build && npm test"
+  command = "npm run build:legacy && npm run test:legacy"
 [build.environment]
   NODE_VERSION = "22"
 [functions]

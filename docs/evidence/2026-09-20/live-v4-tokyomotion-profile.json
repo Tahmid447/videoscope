@@ -1,0 +1,23 @@
+{
+  "name": "tokyomotion-profile",
+  "url": "https://www.tokyomotion.net/user/yua_xx/videos",
+  "status": "complete",
+  "expected": 72,
+  "unique": 72,
+  "pages": 4,
+  "requests": 5,
+  "coverage": {
+    "title": 72,
+    "thumbnailUrl": 72,
+    "views": 72,
+    "likes": 0,
+    "comments": 0,
+    "rating": 72,
+    "publishedAt": 72,
+    "durationSeconds": 72,
+    "totalViews": 4061608
+  },
+  "errors": [],
+  "warnings": [],
+  "elapsedSeconds": 8.445
+}

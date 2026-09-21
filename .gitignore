@@ -6,3 +6,9 @@ node_modules/
 __pycache__/
 artifacts/
 *.log
+.wrangler/
+.dev.vars
+.dev.vars.*
+dist/
+test-results/
+playwright-report/

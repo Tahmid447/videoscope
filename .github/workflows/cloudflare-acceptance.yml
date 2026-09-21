@@ -1,0 +1,41 @@
+name: Controlled Cloudflare preview acceptance
+on:
+  push:
+    tags: ['videoscope-preview-check-*']
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: 'Cloudflare preview URL deployed from this exact commit'
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: npm}
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: npm run check
+      - name: Live source and persistence acceptance
+        env:
+          SITE_URL: ${{ inputs.site_url || vars.VIDEOSCOPE_PREVIEW_URL }}
+          HOSTED_WORKSPACE: ${{ secrets.VIDEOSCOPE_ACCEPTANCE_WORKSPACE }}
+        run: node scripts/hosted-v4.mjs
+      - name: Install media verification utility
+        run: command -v ffprobe || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+      - name: Verify actual MP4 attachment and playback
+        env:
+          SITE_URL: ${{ inputs.site_url || vars.VIDEOSCOPE_PREVIEW_URL }}
+          HOSTED_WORKSPACE: ${{ secrets.VIDEOSCOPE_ACCEPTANCE_WORKSPACE }}
+        run: node scripts/hosted-download.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cloudflare-preview-acceptance
+          path: artifacts/
+          retention-days: 30

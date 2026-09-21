@@ -1,0 +1,96 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "videoscope-v4",
+  "main": "cloudflare/worker.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*"
+    ]
+  },
+  "vars": {
+    "APP_VERSION": "4.0.0",
+    "YOUTUBE_SEARCH_ENABLED": "false"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "videoscope-v4-production",
+      "database_id": "af53cb04-e6f8-4b76-81e2-d873574c5eeb",
+      "migrations_dir": "cloudflare/migrations"
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "* * * * *"
+    ]
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 0.1
+  },
+  "env": {
+    "preview": {
+      "name": "videoscope-v4-preview",
+      "vars": {
+        "APP_VERSION": "4.0.0-preview",
+        "YOUTUBE_SEARCH_ENABLED": "false"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "videoscope-v4-preview",
+          "database_id": "6c0eb4da-2a3a-4b85-93d4-996b3a397e83",
+          "migrations_dir": "cloudflare/migrations"
+        }
+      ],
+      "triggers": {
+        "crons": [
+          "* * * * *"
+        ]
+      },
+      "queues": {
+        "producers": [
+          {
+            "binding": "SCAN_QUEUE",
+            "queue": "videoscope-v4-preview-scans"
+          }
+        ],
+        "consumers": [
+          {
+            "queue": "videoscope-v4-preview-scans",
+            "max_batch_size": 1,
+            "max_batch_timeout": 1,
+            "max_concurrency": 1,
+            "max_retries": 4
+          }
+        ]
+      }
+    }
+  },
+  "account_id": "e8f1eea5d1c73f3cbc307d71f0a98ca9",
+  "queues": {
+    "producers": [
+      {
+        "binding": "SCAN_QUEUE",
+        "queue": "videoscope-v4-scans"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "videoscope-v4-scans",
+        "max_batch_size": 1,
+        "max_batch_timeout": 1,
+        "max_concurrency": 1,
+        "max_retries": 4
+      }
+    ]
+  }
+}
