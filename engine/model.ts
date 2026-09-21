@@ -10,13 +10,13 @@ export interface VideoRecord {
   rating: number | null; ratingCount: number | null; ratingScale: number | null;
   durationSeconds: number | null; width: number | null; height: number | null;
   quality: string | null; isHD: boolean | null; tags: string[]; categories: string[];
-  availability: string; downloadCapability: 'unavailable'; metadataSources: Record<string, string>;
+  availability: string; downloadCapability: 'unavailable' | 'direct-mp4'; metadataSources: Record<string, string>;
   fetchedAt: string; enrichedAt: string | null;
 }
 export interface Capabilities {
   id: string; name: string; sourceTypes: SourceType[]; metrics: string[];
   enumeration: boolean | 'conditional'; credential: string | null; configured: boolean;
-  download: false; note: string; delayMs: number; cacheTtlSeconds: number; enrichmentBatch: number;
+  download: false | 'conditional'; note: string; delayMs: number; cacheTtlSeconds: number; enrichmentBatch: number;
 }
 export interface Detection { provider: string; url: string; sourceType: SourceType; }
 export interface Diagnostic { strategy: string; result: string; count?: number; status?: number; durationMs?: number; }

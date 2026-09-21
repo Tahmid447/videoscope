@@ -13,8 +13,10 @@ while rendering 24, 48, or 96 results at a time.
 - Shared SQL filters, source thumbnails, nullable metrics, bookmarks, CSV and JSON backups.
 - Existing VideoScope visual identity, light/dark themes and responsive layouts.
 
-Downloads are unavailable. The audited media branch remains separate until real
-hosted attachment/playback acceptance passes. A source that requires login,
+Public unencrypted direct MP4 URLs up to 16 MB have a validated attachment download
+with editable filenames. Platform pages (including YouTube) and HLS/DASH do not
+have downloads in this deployment; the separate FFmpeg media service remains
+unconfigured. A source that requires login,
 blocks automated reads, or lacks a supported public interface reports that limit.
 
 ## Development

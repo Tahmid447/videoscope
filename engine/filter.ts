@@ -30,7 +30,7 @@ export function filterSql(params: URLSearchParams, now = new Date()) {
   if (params.get('hd') === 'true') where.push('v.is_hd = 1');
   if (params.get('hasThumbnail') === 'true') where.push("v.thumbnail_url IS NOT NULL AND v.thumbnail_url != ''");
   if (params.get('knownViews') === 'true') where.push('v.views IS NOT NULL');
-  if (params.get('download') === 'true') where.push('0 = 1');
+  if (params.get('download') === 'true') where.push("v.provider = 'direct-mp4' AND json_extract(v.record_json,'$.downloadCapability') = 'direct-mp4'");
   if (params.get('resolution')) { const n = Number(params.get('resolution')); if (!Number.isFinite(n) || n <= 0) throw new ProviderError('invalid_filter', 'Resolution must be a positive pixel height.', 400); where.push('v.height >= ?'); values.push(n); }
   const sorts: Record<string,string> = {views:'v.views',likes:'v.likes',comments:'v.comments',rating,published:'v.published_at',duration:'v.duration_seconds',title:'v.title COLLATE NOCASE'};
   const mode = params.get('sort') || 'views_desc', match = mode.match(/^(views|likes|comments|rating|published|duration|title)_(asc|desc)$/);

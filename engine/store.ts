@@ -10,11 +10,12 @@ export function cursorKey(cursor: Json): string {
   return hash(JSON.stringify(cursor));
 }
 interface JobRow {state_json: string; status: State; phase: ScanJob['phase']; revision: number; lease: string | null; lease_until: number; next_run_at: number;}
+const decodeJob = (row: JobRow): ScanJob => ({...JSON.parse(row.state_json),status:row.status,phase:row.phase,revision:row.revision,lease:row.lease,leaseUntil:row.lease_until,nextRunAt:row.next_run_at});
 export class Store {
   constructor(public db: D1Database) {}
   async job(id: string, owner?: string): Promise<ScanJob | null> {
     const row = await this.db.prepare(`SELECT * FROM scan_jobs WHERE id = ?${owner ? ' AND owner = ?' : ''}`).bind(...(owner ? [id, owner] : [id])).first<JobRow>();
-    return row ? {...JSON.parse(row.state_json), status: row.status, phase: row.phase, revision: row.revision, lease: row.lease, leaseUntil: row.lease_until, nextRunAt: row.next_run_at} : null;
+    return row ? decodeJob(row) : null;
   }
   async create(owner: string, source: Detection, cap: Capabilities, enrichment: boolean, mode: string): Promise<ScanJob> {
     const now = new Date().toISOString(), cid = randomUUID(), id = randomUUID();
@@ -28,14 +29,15 @@ export class Store {
   }
   async claim(id: string): Promise<ScanJob | null> {
     const token = randomUUID(), now = Date.now();
-    const row = await this.db.prepare("UPDATE scan_jobs SET state_json=CASE WHEN lease IS NOT NULL THEN json_set(state_json,'$.recoveryAttempts',COALESCE(json_extract(state_json,'$.recoveryAttempts'),0)+1) ELSE state_json END,lease=?,lease_until=? WHERE id=? AND status IN ('queued','enumerating','enriching') AND lease_until < ? AND next_run_at <= ? RETURNING id").bind(token,now+120_000,id,now,now).first();
-    const j=row?await this.job(id):null;
+    const row = await this.db.prepare("UPDATE scan_jobs SET state_json=CASE WHEN lease IS NOT NULL THEN json_set(state_json,'$.recoveryAttempts',COALESCE(json_extract(state_json,'$.recoveryAttempts'),0)+1) ELSE state_json END,lease=?,lease_until=? WHERE id=? AND status IN ('queued','enumerating','enriching') AND lease_until < ? AND next_run_at <= ? RETURNING *").bind(token,now+120_000,id,now,now).first<JobRow>();
+    const j=row?decodeJob(row):null;
     if(j && (j.recoveryAttempts||0)>=4){j.status=j.uniqueItemsCollected?'partial':'failed';j.finishedAt=new Date().toISOString();j.errors.push({code:'worker_interrupted',message:'This scan step repeatedly lost its Worker before saving. Progress is retained; check Worker resource limits before continuing.'});await this.commit(j,[],false);return null;}
     return j;
   }
   async claimProvider(j: ScanJob): Promise<boolean> {
     const key = `${j.provider}:${new URL(j.inputUrl).hostname}`;
-    const result = await this.db.prepare('INSERT INTO provider_locks(id,lease,lease_until) VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET lease=excluded.lease, lease_until=excluded.lease_until WHERE provider_locks.lease_until < ? RETURNING id').bind(key,j.lease,Date.now()+120_000,Date.now()).first();
+    if(!j.lease)return false;
+    const result = await this.db.prepare("INSERT INTO provider_locks(id,lease,lease_until) SELECT ?,?,? WHERE EXISTS(SELECT 1 FROM scan_jobs WHERE id=? AND lease=? AND revision=? AND status IN ('queued','enumerating','enriching')) ON CONFLICT(id) DO UPDATE SET lease=excluded.lease, lease_until=excluded.lease_until WHERE provider_locks.lease_until < ? RETURNING id").bind(key,j.lease,Date.now()+120_000,j.id,j.lease,j.revision,Date.now()).first();
     return !!result;
   }
   async releaseProvider(j: ScanJob) { await this.db.prepare('UPDATE provider_locks SET lease_until=? WHERE lease=?').bind(Date.now()+j.providerCapabilities.delayMs,j.lease).run(); }

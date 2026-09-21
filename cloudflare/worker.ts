@@ -5,6 +5,7 @@ import { Store, hash } from '../engine/store.ts';
 import { detect, providerById, providers } from '../engine/providers/index.ts';
 import { runStep } from '../engine/runner.ts';
 import { ProviderError } from '../engine/errors.ts';
+import {mediaFile} from '../engine/media.ts';
 import { activeStates, type Credentials, type ScanJob } from '../engine/model.ts';
 export interface Env extends Credentials { DB: D1Database; ASSETS: Fetcher; SCAN_QUEUE?: Queue<{id:string}>; APP_VERSION?: string; BUILD_SHA?: string; }
 const json = (body: unknown, status = 200) => Response.json(body,{status,headers:{'cache-control':'no-store','x-content-type-options':'nosniff','referrer-policy':'no-referrer'}});
@@ -28,6 +29,18 @@ export async function api(req: Request, env: Env): Promise<Response> {
   const owner = ownerOf(req);
   if (!['GET','HEAD'].includes(req.method)) {
     const origin = req.headers.get('origin'); if (origin && origin !== u.origin) throw new ProviderError('origin_denied','Cross-origin mutations are not allowed.',403);
+  }
+  if(parts[0]==='downloads'&&req.method==='POST'){
+    const b=await payload(req);
+    const row=await env.DB.prepare("SELECT v.record_json FROM videos v JOIN collection_videos cv ON cv.video_id=v.id JOIN collections c ON c.id=cv.collection_id WHERE v.id=? AND c.owner=? AND v.provider='direct-mp4' LIMIT 1").bind(String(b.id),owner).first<{record_json:string}>();
+    if(!row)throw new ProviderError('download_unavailable','A verified direct MP4 in this workspace is required.',404);
+    const video=JSON.parse(row.record_json);
+    const key=`download:${owner}:${Math.floor(Date.now()/3600000)}`;
+    const rate=await env.DB.prepare('INSERT INTO rate_buckets(bucket,requests,expires_at) VALUES(?,1,?) ON CONFLICT(bucket) DO UPDATE SET requests=requests+1 RETURNING requests').bind(key,Date.now()+3600000).first<{requests:number}>();
+    if((rate?.requests||0)>12)throw new ProviderError('download_limit','This workspace has reached its hourly download limit.',429);
+    const file=await mediaFile(video.canonicalUrl);
+    const name=String(b.filename||video.title||'video').replace(/\.mp4$/i,'').replace(/[^a-zA-Z0-9._ -]/g,'_').replace(/^\.+/,'').trim().slice(0,100)||'video';
+    return new Response(file.bytes,{headers:{'content-type':'video/mp4','content-length':String(file.bytes.length),'content-disposition':`attachment; filename="${name}.mp4"`,'cache-control':'no-store','x-content-type-options':'nosniff'}});
   }
   if (parts[0] === 'imports' && req.method === 'POST') {
     const b = await payload(req, 400_000);

@@ -96,3 +96,17 @@ chosen deployed host before any download capability/button is enabled.
 Only the tested source metadata helpers in `lib/extract.mjs` are reused by v4.
 The v4 build uses `web/`, `engine/`, and `cloudflare/`; it never chooses the v3
 scanner at runtime. Dead rollback code is retained until production acceptance.
+
+## Direct MP4 attachments
+
+The `direct-mp4` provider accepts public MP4 URLs up to 16 MB. It validates MIME,
+complete MP4 boxes, a video track, and absence of protected-track markers before
+saving a download capability. `/api/downloads` verifies collection ownership,
+re-fetches and validates the complete file, then returns a real attachment. It
+does not redirect the user to a remote URL. User-imported capability claims are
+ignored. Downloads have a twelve-per-workspace hourly budget and no credentials
+or cookies are sent to source hosts. Public IP/DNS, redirect and robots checks
+apply. Hosted acceptance verifies the browser-saved bytes with FFprobe and real
+Chromium playback. The supported workflow needs no FFmpeg on Cloudflare; platform
+extraction, manifests, larger files and transcoding still require the separate
+media service.

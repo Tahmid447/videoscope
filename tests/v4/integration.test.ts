@@ -142,3 +142,32 @@ test('provider timestamps in different time zones share UTC SQL ordering and dat
   assert.equal(day.total,1);assert.equal(day.items[0].id,'fixture:1');
  }finally{await mf.dispose();}
 });
+
+test('pause between atomic claim and provider lock cannot erase a lease or run a page',async()=>{
+  const {mf,db,store}=await database();try{
+    const initial=await start(store);let interrupted=false,calls=0;
+    const wrapped=new Proxy(db,{get(target,key){
+      if(key==='prepare')return (sql:string)=>{
+        const statement=target.prepare(sql);
+        if(!sql.startsWith('UPDATE scan_jobs SET state_json=CASE'))return statement;
+        return {bind(...args:unknown[]){const bound=statement.bind(...args);return {async first(){const row=await bound.first();await store.control(initial.id,'owner','pause');interrupted=true;return row;}};}};
+      };
+      const value=Reflect.get(target,key);return typeof value==='function'?value.bind(target):value;
+    }}) as D1Database;
+    const saved=await runStep(new Store(wrapped),initial.id,{}, {provider:{...base,enumerate:async()=>{calls++;return {items:[video(1)],nextCursor:null,complete:true};}}});
+    assert.equal(interrupted,true);assert.equal(saved?.status,'paused');assert.equal(calls,0);
+    assert.equal((await db.prepare('SELECT count(*) n FROM provider_locks').first<{n:number}>())?.n,0);
+    await store.control(initial.id,'owner','resume');await runStep(store,initial.id,{}, {provider:base});
+    assert.equal((await store.job(initial.id))?.phase,'enriching');
+  }finally{await mf.dispose();}
+});
+
+test('download requests cannot access another workspace or imported media claims',async()=>{
+  const {mf,db,store}=await database();try{
+    const j=await start(store);await store.claim(j.id);const claimed=(await store.job(j.id))!;
+    claimed.status='complete';await store.commit(claimed,[record('direct-mp4','test','https://example.com/file.mp4',{title:'Test',downloadCapability:'direct-mp4'})],false);
+    const req=(id:string)=>new Request('https://videoscope.example.com/api/downloads',{method:'POST',headers:{'content-type':'application/json','x-videoscope-workspace':'another-workspace-credential'},body:JSON.stringify({id})});
+    await assert.rejects(api(req('direct-mp4:test'),{DB:db} as Env),/verified direct MP4/);
+    await assert.rejects(api(req('import:fake'),{DB:db} as Env),/verified direct MP4/);
+  }finally{await mf.dispose();}
+});

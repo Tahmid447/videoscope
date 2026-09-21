@@ -26,6 +26,13 @@ jobs:
           SITE_URL: ${{ inputs.site_url || vars.VIDEOSCOPE_PREVIEW_URL }}
           HOSTED_WORKSPACE: ${{ secrets.VIDEOSCOPE_ACCEPTANCE_WORKSPACE }}
         run: node scripts/hosted-v4.mjs
+      - name: Install media verification utility
+        run: command -v ffprobe || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+      - name: Verify actual MP4 attachment and playback
+        env:
+          SITE_URL: ${{ inputs.site_url || vars.VIDEOSCOPE_PREVIEW_URL }}
+          HOSTED_WORKSPACE: ${{ secrets.VIDEOSCOPE_ACCEPTANCE_WORKSPACE }}
+        run: node scripts/hosted-download.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

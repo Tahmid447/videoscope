@@ -35,7 +35,7 @@
     "lint": "eslint engine cloudflare web tests/v4",
     "typecheck": "tsc --noEmit",
     "test:legacy": "node --test tests/metadata.test.mjs tests/search.test.mjs tests/core.test.mjs",
-    "test:providers": "node --import tsx --test tests/v4/providers.test.ts tests/v4/network.test.ts",
+    "test:providers": "node --import tsx --test tests/v4/providers.test.ts tests/v4/network.test.ts tests/v4/media.test.ts",
     "test:integration": "node --import tsx --test tests/v4/integration.test.ts",
     "test:e2e": "playwright test",
     "test:live:v4": "node --import tsx scripts/live-v4.ts",
