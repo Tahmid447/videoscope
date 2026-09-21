@@ -36,7 +36,7 @@ export async function mediaFile(raw:string,options:{fetcher?:typeof fetch;resolv
       }
       if(response.status!==200){await response.body?.cancel();throw new ProviderError('media_unavailable',`Source file returned HTTP ${response.status}.`,422);}
       const type=response.headers.get('content-type')?.split(';')[0].trim();
-      if(type!=='video/mp4'){await response.body?.cancel();throw new ProviderError('invalid_media','The source did not return an MP4 video.',422);}
+      if(type!=='video/mp4'&&type!=='application/octet-stream'){await response.body?.cancel();throw new ProviderError('invalid_media','The source did not return an MP4 video.',422);}
       const length=Number(response.headers.get('content-length'));
       if(length>MAX_MEDIA_BYTES){await response.body?.cancel();throw new ProviderError('media_limit','Direct MP4 downloads are limited to 16 MB on this service.',422);}
       const reader=response.body?.getReader();if(!reader)throw new ProviderError('invalid_media','Empty media response.',422);

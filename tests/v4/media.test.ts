@@ -11,6 +11,7 @@ test('media retrieval checks MIME, size, robots, redirects and returns actual by
   const resolve=async()=>{};
   const fetcher=(async(url:string)=>url.endsWith('/robots.txt')?new Response('',{status:404}):new Response(mp4,{headers:{'content-type':'video/mp4','content-length':String(mp4.length)}})) as typeof fetch;
   assert.deepEqual(Buffer.from((await mediaFile('https://example.com/clip.mp4',{fetcher,resolve})).bytes),mp4);
+  assert.deepEqual(Buffer.from((await mediaFile('https://example.com/clip.mp4',{resolve,fetcher:(async u=>String(u).endsWith('/robots.txt')?new Response('',{status:404}):new Response(mp4,{headers:{'content-type':'application/octet-stream'}})) as typeof fetch})).bytes),mp4);
   await assert.rejects(mediaFile('https://example.com/clip.mp4',{resolve,fetcher:(async u=>String(u).endsWith('/robots.txt')?new Response('',{status:404}):new Response('oops',{headers:{'content-type':'text/html'}})) as typeof fetch}),/MP4/);
   await assert.rejects(mediaFile('https://example.com/clip.mp4',{resolve,fetcher:(async u=>String(u).endsWith('/robots.txt')?new Response('',{status:404}):new Response(mp4,{headers:{'content-type':'video/mp4','content-length':String(MAX_MEDIA_BYTES+1)}})) as typeof fetch}),/16 MB/);
   await assert.rejects(mediaFile('https://example.com/clip.mp4',{resolve,fetcher:(async u=>String(u).endsWith('/robots.txt')?new Response('User-agent: *\nDisallow: /clip.mp4'):new Response(mp4)) as typeof fetch}),/disallow/);

@@ -6,7 +6,7 @@ import {client} from './hosted-v4-client.mjs';
 const site=process.env.SITE_URL,commit=process.env.GITHUB_SHA,workspace=process.env.HOSTED_WORKSPACE;
 assert.ok(site?.startsWith('https://'));assert.ok(workspace,'Set the private acceptance workspace');
 const api=client(site,workspace),config=await api('config');assert.equal(config.buildSha,commit);
-const url='https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
+const url='https://raw.githubusercontent.com/mdn/interactive-examples/main/live-examples/media/cc0-videos/flower.mp4';
 let job=await api('scans',{url,mode:'cached',enrich:false});const start=Date.now();
 while(['queued','enumerating','enriching'].includes(job.status)){assert.ok(Date.now()-start<180000,'Direct MP4 scan timed out');await new Promise(r=>setTimeout(r,2000));job=await api('scans/'+job.id);}
 assert.equal(job.status,'complete');assert.equal(job.uniqueItemsCollected,1);
