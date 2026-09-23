@@ -1,0 +1,18 @@
+{
+  "appName": "VideoScope",
+  "appId": "2254262295147290",
+  "configurationName": "VideoScope Read Access",
+  "configurationId": "1085883213805922",
+  "graphVersion": "v26.0",
+  "tokenType": "user",
+  "requestedScopes": [
+    "instagram_basic",
+    "instagram_manage_insights",
+    "pages_read_engagement",
+    "pages_show_list"
+  ],
+  "status": "awaiting_user_authorization",
+  "liveMetaApiVerified": false,
+  "tokenInstalled": false,
+  "newCollectionScans": 0
+}

@@ -53,11 +53,17 @@ bytes, editable filename, attachment response, FFprobe and Chromium playback.
   that adding a token solves that requirement. On September 23, requested one
   public example URL per platform. Both supplied Reels pages show an initial
   public listing in the browser. This does not prove complete backend/API access.
-  The user confirmed they have their own linked Instagram professional account
-  and Facebook Page. Meta developer setup is open in the browser and awaits
-  their password/2FA sign-in. After sign-in, inspect an existing app before
-  creating one, then establish read access and run one bounded Business Discovery
-  check. Do not ask again whether the accounts are linked. See [Meta setup](META-SETUP.md).
+  The user confirmed their own linked Instagram professional account and Page,
+  signed in, registered as a developer and created VideoScope. App ID:
+  `2254262295147290`. Login configuration `VideoScope Read Access`, ID
+  `1085883213805922`, uses a user token and four scopes: `instagram_basic`,
+  `instagram_manage_insights`, `pages_read_engagement`, `pages_show_list`.
+  Graph API Explorer is on v26.0 with that configuration selected. It awaits the
+  user's Generate Access Token / account authorization step. No token has been
+  installed in VideoScope or live Meta API result verified. Do not recreate the
+  app, repeat registration or ask whether the accounts are linked. Next: verify
+  one small managed-Page/linked-account response, then one Business Discovery
+  response for the supplied Instagram username. See [Meta setup](META-SETUP.md).
 - Instagram Business Discovery may offer limited access to other professional
   accounts; it is not implemented here and is not access to consumer profiles.
   Any extension requires a suitable authorized connection and a bounded real

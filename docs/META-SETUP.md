@@ -3,6 +3,30 @@
 Checked September 23, 2026. **Not configured or live-verified in VideoScope.**
 YouTube is already configured. Do not replace its existing key or buy another key.
 
+## Current setup checkpoint
+
+The user completed developer registration and created VideoScope, app ID
+`2254262295147290`. The app includes Instagram and Pages use cases and remains
+unpublished. No business portfolio is attached.
+
+Login configuration `VideoScope Read Access` (`1085883213805922`) is saved as a
+General / User access token configuration. It requests only `instagram_basic`,
+`instagram_manage_insights`, `pages_read_engagement`, and `pages_show_list`.
+Graph API Explorer v26.0 has this configuration selected. The current step is
+user authorization via Generate Access Token. No Meta token is installed locally
+or in Cloudflare, and target-profile access remains unverified.
+
+The [current Business Discovery reference](https://developers.facebook.com/documentation/instagram-platform/instagram-graph-api/reference/ig-user/business_discovery)
+requires a Facebook user token with the first three scopes. `pages_show_list`
+locates the linked Instagram account. If Page roles came through Business
+Manager, that reference also requires `ads_read` or `ads_management`; neither
+has been requested. Do not add those unless the actual connection requires it.
+
+The [current guide](https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-facebook-login/business-discovery)
+allows nested public media reads for eligible professional accounts, with
+source limitations. Account eligibility and field availability still need a real
+small response. No full scans are needed to establish that.
+
 ## What access can accomplish
 
 The deployed Meta adapter reads an explicitly authorized Facebook Page's videos
@@ -43,7 +67,8 @@ public account rather than scanning thousands of items.
    connection; it does not imply ownership of the public target profile.
 4. Use [Graph API Explorer](https://developers.facebook.com/tools/explorer/) for
    the selected app. Request the read permissions needed by that setup,
-   normally `instagram_basic`, `pages_show_list` and `pages_read_engagement`.
+   `instagram_basic`, `instagram_manage_insights`, `pages_show_list` and
+   `pages_read_engagement` for the planned Business Discovery check.
    Follow the dashboard's permission/review requirements; token presence alone
    does not mean access has been granted.
 5. Meta's [managed Pages token example](https://www.postman.com/meta/instagram/request/0vuw3vk/get-access-tokens-of-pages-you-manage)
