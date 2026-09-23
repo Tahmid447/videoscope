@@ -58,12 +58,15 @@ bytes, editable filename, attachment response, FFprobe and Chromium playback.
   `2254262295147290`. Login configuration `VideoScope Read Access`, ID
   `1085883213805922`, uses a user token and four scopes: `instagram_basic`,
   `instagram_manage_insights`, `pages_read_engagement`, `pages_show_list`.
-  Graph API Explorer is on v26.0 with that configuration selected. It awaits the
-  user's Generate Access Token / account authorization step. No token has been
-  installed in VideoScope or live Meta API result verified. Do not recreate the
-  app, repeat registration or ask whether the accounts are linked. Next: verify
-  one small managed-Page/linked-account response, then one Business Discovery
-  response for the supplied Instagram username. See [Meta setup](META-SETUP.md).
+  Graph API Explorer v26.0 now has an authorized user token. `me/permissions`
+  confirmed all four read scopes granted (plus automatic public_profile), but
+  `me/accounts?fields=id,name,instagram_business_account&limit=5` returned
+  `data: []`. No linked Instagram ID or target-profile access is verified.
+  Asked the user for their own Page URL/name and linked Instagram username to
+  diagnose account/asset selection. No token is installed in VideoScope.
+  Do not repeat registration, create another app, or re-run collection tests.
+  Facebook public Pages not managed by the connection require Page Public Content
+  Access app review and business verification, per Meta's current reference. See [Meta setup](META-SETUP.md).
 - Instagram Business Discovery may offer limited access to other professional
   accounts; it is not implemented here and is not access to consumer profiles.
   Any extension requires a suitable authorized connection and a bounded real

@@ -11,8 +11,22 @@
     "pages_read_engagement",
     "pages_show_list"
   ],
-  "status": "awaiting_user_authorization",
-  "liveMetaApiVerified": false,
+  "status": "authorized_but_no_pages_returned",
+  "liveMetaApiVerified": true,
   "tokenInstalled": false,
-  "newCollectionScans": 0
+  "newCollectionScans": 0,
+  "grantedScopes": [
+    "pages_show_list",
+    "instagram_basic",
+    "instagram_manage_insights",
+    "pages_read_engagement",
+    "public_profile"
+  ],
+  "authorizedPagesReturned": 0,
+  "targetProfileAccessVerified": false,
+  "nextAction": "Identify the user-owned Facebook Page and linked Instagram username; inspect Page asset selection. Do not repeat registration or create another app.",
+  "requestsPerformed": [
+    "GET me/accounts?fields=id,name,instagram_business_account&limit=5",
+    "GET me/permissions"
+  ]
 }

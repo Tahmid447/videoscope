@@ -12,9 +12,11 @@ unpublished. No business portfolio is attached.
 Login configuration `VideoScope Read Access` (`1085883213805922`) is saved as a
 General / User access token configuration. It requests only `instagram_basic`,
 `instagram_manage_insights`, `pages_read_engagement`, and `pages_show_list`.
-Graph API Explorer v26.0 has this configuration selected. The current step is
-user authorization via Generate Access Token. No Meta token is installed locally
-or in Cloudflare, and target-profile access remains unverified.
+Graph API Explorer v26.0 now holds an authorized user token. A two-request check
+confirmed all four permissions granted, but the managed Pages response was
+`data: []`. The user was asked for their own Page URL/name and linked Instagram
+username to diagnose missing asset access or a different account. No Meta token
+is installed locally or in Cloudflare, and target-profile access is unverified.
 
 The [current Business Discovery reference](https://developers.facebook.com/documentation/instagram-platform/instagram-graph-api/reference/ig-user/business_discovery)
 requires a Facebook user token with the first three scopes. `pages_show_list`
@@ -44,9 +46,11 @@ or full history/metrics coverage.
 For Facebook Pages not administered by the connecting user, consult Meta's
 [Page Public Content Access review requirements](https://developers.facebook.com/docs/features-reference/page-public-content-access/).
 A normal Page token must not be assumed to authorize another Page's Reels.
-Review approval, supported Reels endpoints and coverage need confirmation.
-Meta's reference site returned a rate limit during this audit; current detailed
-requirements must be checked in the developer dashboard before requesting access.
+The official reference, read in the signed-in browser, requires App Review and
+business verification for live access. Before review, the Page administrator
+must also have an admin/developer/tester role on the app. There may be additional
+contracts. A token alone is insufficient for the requested third-party Page;
+Reels endpoint and coverage also require validation after access is approved.
 No arbitrary personal-profile access is implemented.
 
 ## Start without buying a third-party service
