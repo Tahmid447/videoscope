@@ -1,5 +1,14 @@
 # Configuration and staged deployment
 
+## Current release
+
+Production is live at https://videoscope-v4.tahmidhc245.workers.dev with source
+`73fb62e721638a2d8bc0cda0e3682d2965d34a7b`. Migration `0001_provider_engine.sql`
+and the YouTube secret are installed in preview and production. Exact-source
+[acceptance passed](https://github.com/Tahmid447/videoscope/actions/runs/35569097461).
+The setup commands below are for recovery or future releases, not instructions
+to repeat the completed release. See [HANDOFF.md](HANDOFF.md) for saved results.
+
 ## Required YouTube setup
 
 The one required provider credential for launch acceptance is `YOUTUBE_API_KEY`.
@@ -35,6 +44,9 @@ recent metadata. API denials/quota exhaustion are explicit errors with saved pro
 
 ## Optional Meta setup
 
+See [META-SETUP.md](META-SETUP.md) before creating credentials; a token does not
+provide arbitrary public-profile access. The deployed Meta adapter remains unconfigured.
+
 Configure `META_ACCESS_TOKEN`, `META_GRAPH_VERSION` and `META_AUTHORIZED_SOURCES`
 as Worker secrets. The mapping is a JSON array of `{url, objectId, kind}` entries,
 where kind is `instagram` or `facebook`. These represent API-authorized Instagram
@@ -52,7 +64,7 @@ jobs when delivery is interrupted. No R2 or container is required for metadata.
 
 `wrangler.jsonc` defines independent preview and production names/bindings.
 The preview and production D1 databases and queues are provisioned independently.
-The production database remains empty until the release gate passes.
+The production database is migrated and holds the completed smoke collections and subsequent user data.
 Never point preview at the production database.
 
 ```sh

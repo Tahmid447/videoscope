@@ -1,0 +1,27 @@
+{
+  "site": "https://videoscope-v4.tahmidhc245.workers.dev",
+  "commit": "73fb62e721638a2d8bc0cda0e3682d2965d34a7b",
+  "version": "4.0.0",
+  "migration": "0001_provider_engine",
+  "status": "pass",
+  "scanId": "10dcdbcb-0b34-4e97-93da-b8be1fc01c77",
+  "collected": 1,
+  "coverage": {
+    "title": 1,
+    "thumbnailUrl": 1,
+    "views": 1,
+    "likes": 1,
+    "comments": 1,
+    "rating": 0,
+    "publishedAt": 1,
+    "durationSeconds": 1,
+    "totalViews": 30689979
+  },
+  "viewports": [
+    1440,
+    375,
+    390,
+    430
+  ],
+  "persistentAfterReload": true
+}

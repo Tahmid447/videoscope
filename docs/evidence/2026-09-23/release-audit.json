@@ -1,0 +1,15 @@
+{
+  "checkedAt": "2026-09-23T10:57:49.890Z",
+  "production": "https://videoscope-v4.tahmidhc245.workers.dev",
+  "sourceSha": "73fb62e721638a2d8bc0cda0e3682d2965d34a7b",
+  "githubAcceptance": "success",
+  "pullRequest": "merged",
+  "youtubeConfigured": true,
+  "metaConfigured": false,
+  "savedProductionScan": {
+    "status": "complete",
+    "records": 1,
+    "errors": 0
+  },
+  "checks": "Read-only production config, saved scan and GitHub status; no new scans or repeated suite"
+}

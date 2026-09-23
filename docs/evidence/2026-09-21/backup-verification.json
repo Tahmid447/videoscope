@@ -1,0 +1,17 @@
+{
+  "restoredToTemporarySQLite": true,
+  "databases": {
+    "videoscope-preview-final.sql": {
+      "videos": 3800,
+      "collections": 11,
+      "scan_jobs": 11,
+      "scan_checkpoints": 602
+    },
+    "videoscope-production-final.sql": {
+      "videos": 2,
+      "collections": 2,
+      "scan_jobs": 2,
+      "scan_checkpoints": 2
+    }
+  }
+}

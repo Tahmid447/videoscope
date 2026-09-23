@@ -1,5 +1,10 @@
 # VideoScope 4
 
+**Live:** https://videoscope-v4.tahmidhc245.workers.dev
+
+The supported v4 release is deployed. YouTube is configured; arbitrary Facebook/Instagram
+profiles remain unsupported. See [verified features and limits](docs/VERIFICATION-V4.md).
+
 VideoScope supports registered providers and standards-compatible public video
 collections. New providers can be added through adapters. It discovers public
 video metadata, persists scan progress, and filters the entire saved collection
@@ -47,7 +52,7 @@ hosted acceptance script uses actual providers without response injection.
 
 ## Architecture and release
 
-- [Recovery checkpoint and remaining work](docs/HANDOFF.md)
+- [Release status, recovery and remaining capabilities](docs/HANDOFF.md)
 - [Original project requirements](docs/PROJECT-BRIEF.md)
 - [Existing-project inventory](docs/ARCHITECTURE-INVENTORY.md)
 - [Provider contract, persistence and capabilities](docs/PROVIDER-ENGINE.md)

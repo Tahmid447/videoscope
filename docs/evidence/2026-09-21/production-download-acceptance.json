@@ -1,0 +1,23 @@
+{
+  "site": "https://videoscope-v4.tahmidhc245.workers.dev",
+  "commit": "73fb62e721638a2d8bc0cda0e3682d2965d34a7b",
+  "status": "pass",
+  "source": "https://raw.githubusercontent.com/mdn/interactive-examples/main/live-examples/media/cc0-videos/flower.mp4",
+  "bytes": 1128375,
+  "attachment": true,
+  "filename": "VideoScope verified flower.mp4",
+  "ffprobe": {
+    "duration": 5.055,
+    "codecs": [
+      "h264",
+      "aac"
+    ]
+  },
+  "playback": {
+    "width": 960,
+    "height": 540,
+    "time": 0.114935
+  },
+  "viewport": 375,
+  "scope": "Public unencrypted direct MP4 up to 16 MB; platform page downloads unavailable"
+}

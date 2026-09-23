@@ -1,0 +1,10 @@
+{
+  "sourceSha": "73fb62e721638a2d8bc0cda0e3682d2965d34a7b",
+  "production": "https://videoscope-v4.tahmidhc245.workers.dev",
+  "productionWorkerVersion": "7070a22f-3729-4bbc-8e84-5b943dcd7770",
+  "previewWorkerVersion": "903f8b16-8d51-4b58-9fc4-660765bd4316",
+  "migration": "0001_provider_engine.sql",
+  "acceptanceRun": "https://github.com/Tahmid447/videoscope/actions/runs/35569097461",
+  "mergeCommit": "ae25408939edf6a35aeab9619fbdbf85ef679d21",
+  "pullRequest": "https://github.com/Tahmid447/videoscope/pull/6"
+}

@@ -1,0 +1,173 @@
+{
+  "site": "https://videoscope-v4-preview.tahmidhc245.workers.dev",
+  "version": "4.0.0-preview",
+  "commit": "73fb62e721638a2d8bc0cda0e3682d2965d34a7b",
+  "allRequiredPassed": true,
+  "report": [
+    {
+      "name": "youtube",
+      "status": "pass",
+      "collectionStatus": "complete",
+      "collected": 2473,
+      "expected": 2473,
+      "pages": 50,
+      "requests": 101,
+      "warnings": [],
+      "coverage": {
+        "title": 2473,
+        "thumbnailUrl": 2473,
+        "views": 2473,
+        "likes": 2456,
+        "comments": 2403,
+        "rating": 0,
+        "publishedAt": 2473,
+        "durationSeconds": 2472,
+        "totalViews": 2689653688
+      },
+      "filters": [
+        "views_asc",
+        "views_desc",
+        "published_asc",
+        "published_desc",
+        "duration_asc",
+        "duration_desc",
+        "min/max Views",
+        "min/max Duration",
+        "date range",
+        "title search",
+        "uploader search"
+      ],
+      "viewports": [
+        1440,
+        375,
+        390,
+        430
+      ]
+    },
+    {
+      "name": "tokyomotion-profile",
+      "status": "pass",
+      "collectionStatus": "complete",
+      "collected": 72,
+      "expected": 72,
+      "pages": 4,
+      "requests": 5,
+      "warnings": [],
+      "coverage": {
+        "title": 72,
+        "thumbnailUrl": 72,
+        "views": 72,
+        "likes": 0,
+        "comments": 0,
+        "rating": 72,
+        "publishedAt": 72,
+        "durationSeconds": 72,
+        "totalViews": 4061608
+      },
+      "filters": [
+        "views_asc",
+        "views_desc",
+        "published_asc",
+        "published_desc",
+        "duration_asc",
+        "duration_desc",
+        "min/max Views",
+        "min/max Duration",
+        "date range",
+        "title search",
+        "uploader search"
+      ],
+      "viewports": [
+        1440,
+        375,
+        390,
+        430
+      ]
+    },
+    {
+      "name": "tokyomotion-search",
+      "status": "pass",
+      "collectionStatus": "partial",
+      "collected": 1147,
+      "expected": 1150,
+      "pages": 267,
+      "requests": 389,
+      "warnings": [
+        "Retrying saved cursor after empty_intermediate_page.",
+        "The source-reported total changed during this scan.",
+        "1147 / 1150 reported items publicly reached. Partial coverage.",
+        "1147 / 1150 reported items publicly reached. Partial coverage."
+      ],
+      "coverage": {
+        "title": 1147,
+        "thumbnailUrl": 1147,
+        "views": 1147,
+        "likes": 0,
+        "comments": 0,
+        "rating": 1110,
+        "publishedAt": 1147,
+        "durationSeconds": 1147,
+        "totalViews": 38217699
+      },
+      "filters": [
+        "views_asc",
+        "views_desc",
+        "published_asc",
+        "published_desc",
+        "duration_asc",
+        "duration_desc",
+        "min/max Views",
+        "min/max Duration",
+        "date range",
+        "title search",
+        "uploader search"
+      ],
+      "viewports": [
+        1440,
+        375,
+        390,
+        430
+      ]
+    },
+    {
+      "name": "wordpress-archive",
+      "status": "pass",
+      "collectionStatus": "complete",
+      "collected": 109,
+      "expected": null,
+      "pages": 12,
+      "requests": 14,
+      "warnings": [],
+      "coverage": {
+        "title": 109,
+        "thumbnailUrl": 109,
+        "views": 0,
+        "likes": 0,
+        "comments": 0,
+        "rating": 0,
+        "publishedAt": 109,
+        "durationSeconds": 0,
+        "totalViews": null
+      },
+      "filters": [
+        "views_asc",
+        "views_desc",
+        "published_asc",
+        "published_desc",
+        "duration_asc",
+        "duration_desc",
+        "Views: unknown excluded",
+        "Duration: unknown excluded",
+        "date range",
+        "title search",
+        "uploader search"
+      ],
+      "viewports": [
+        1440,
+        375,
+        390,
+        430
+      ]
+    }
+  ]
+}
